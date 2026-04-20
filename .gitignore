@@ -1,0 +1,9 @@
+data/raw/
+data/synthetic/
+data/distorted/
+data/restored/
+results/*.csv
+results/*.json
+__pycache__/
+*.pyc
+.DS_Store
