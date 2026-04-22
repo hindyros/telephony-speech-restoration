@@ -8,10 +8,10 @@ Usage:
     python evals/eval_runner.py --conditions clean distorted restored --output results/
 
 Prerequisites:
-    - data/clean/    : original audio samples named <action_id>_<n>.wav
-    - data/distorted/: noise-augmented counterparts
+    - data/clean/    : caller audio named <action_id>_<n>.wav (B01..B08)
+    - data/distorted/: telephony-degraded counterparts
     - data/restored/ : output of the Colab restoration pipeline
-    - sandbox/actions.md parsed into GROUND_TRUTH below (or a JSON sidecar)
+    - sandbox/actions.md and GROUND_TRUTH below define the 8 banking tasks
 
 TODO: plug in your actual agent call in `query_agent()`.
 """
@@ -27,16 +27,25 @@ from datetime import datetime
 # Ground truth: maps action_id -> expected agent action label
 # ---------------------------------------------------------------------------
 GROUND_TRUTH = {
-    "A01": "initiate_return",
-    "A02": "check_order_status",
-    "A03": "transfer_to_human",
-    "A04": "cancel_subscription",
-    "A05": "update_address",
-    "A06": "report_missing_package",
-    "A07": "apply_promo_code",
-    "A08": "track_delivery",
-    "A09": "initiate_refund",
-    "A10": "update_password",
+    "B01": "replace_card",
+    "B02": "transfer_money",
+    "B03": "check_balance",
+    "B04": "order_checks",
+    "B05": "pay_bill",
+    "B06": "reset_password",
+    "B07": "schedule_appointment",
+    "B08": "get_branch_hours",
+}
+
+TASK_TYPE_TO_LABEL = {
+    "replace card": "replace_card",
+    "transfer money": "transfer_money",
+    "check balance": "check_balance",
+    "order checks": "order_checks",
+    "pay bill": "pay_bill",
+    "reset password": "reset_password",
+    "schedule appointment": "schedule_appointment",
+    "get branch hours": "get_branch_hours",
 }
 
 DATA_DIRS = {

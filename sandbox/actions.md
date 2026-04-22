@@ -1,25 +1,35 @@
-# Sandbox Action List
+# Sandbox Action List (Harper Valley Banking)
 
-Each action has an unambiguous ground-truth outcome. The agent's response is scored as correct (1) or incorrect (0).
+The sandbox mirrors the 8 caller task types in the [Gridspace Stanford Harper Valley](https://github.com/cricketclub/gridspace-stanford-harper-valley) dataset. Each caller clip is labeled with the task the caller was assigned, and the agent under test must choose the matching action.
 
-Target: ~10 actions. Fill in as the sandbox is built.
+| ID | Harper Valley `task_type` | Expected Action | Ground Truth Label |
+|----|---------------------------|-----------------|--------------------|
+| B01 | `replace card` | Replace a lost or stolen card | `replace_card` |
+| B02 | `transfer money` | Transfer money between accounts | `transfer_money` |
+| B03 | `check balance` | Report current account balance | `check_balance` |
+| B04 | `order checks` | Order a new checkbook | `order_checks` |
+| B05 | `pay bill` | Schedule or confirm a bill payment | `pay_bill` |
+| B06 | `reset password` | Reset the caller's online banking password | `reset_password` |
+| B07 | `schedule appointment` | Book an in-branch appointment | `schedule_appointment` |
+| B08 | `get branch hours` | Report branch operating hours | `get_branch_hours` |
 
-| ID | Utterance (example) | Expected Action | Ground Truth Label |
-|----|--------------------|-----------------|--------------------|
-| A01 | "I'd like to file a return for my order" | `initiate_return` | `initiate_return` |
-| A02 | "What's the status of my order?" | `check_order_status` | `check_order_status` |
-| A03 | "Can I speak to a human agent?" | `transfer_to_human` | `transfer_to_human` |
-| A04 | "I want to cancel my subscription" | `cancel_subscription` | `cancel_subscription` |
-| A05 | "Update my shipping address" | `update_address` | `update_address` |
-| A06 | "I never received my package" | `report_missing_package` | `report_missing_package` |
-| A07 | "Apply my promo code SAVE20" | `apply_promo_code` | `apply_promo_code` |
-| A08 | "I want to track my delivery" | `track_delivery` | `track_delivery` |
-| A09 | "Refund my last charge" | `initiate_refund` | `initiate_refund` |
-| A10 | "Change my password" | `update_password` | `update_password` |
+## Ground Truth Source
+
+Ground truth comes from the Harper Valley metadata file for each conversation:
+
+```
+metadata/<sid>.json -> tasks[0].task_type
+```
+
+The label mapping above converts the human-readable `task_type` string into a stable snake_case action label used by the evaluator.
+
+## File Naming
+
+All evaluation WAVs follow the pattern `<action_id>_<n>.wav`, for example `B03_05.wav`. The action ID determines the ground truth; the suffix just disambiguates samples.
 
 ## Scoring
 
-- **Correct (1):** Agent takes the exact expected action
-- **Incorrect (0):** Agent takes wrong action, asks for clarification, or fails
+- **Correct (1):** Agent returns the exact expected action label
+- **Incorrect (0):** Agent returns a different label, asks for clarification, or fails
 
-Correct-action rate per condition = sum of correct scores / total samples
+Correct-action rate per condition = sum of correct scores / total samples.
