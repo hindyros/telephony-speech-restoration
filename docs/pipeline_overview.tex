@@ -125,19 +125,12 @@ distorted\,(floor), and restored\,(system under test).
 %% Row 3 (y=-2.18) — event selection
 \node[box, minimum width=7.50cm, fill=cDet!30, draw=cDet!75]
   (json) at (0.00, -2.18)
-  {Events per \texttt{events\_source} (9 modes)\\\tiny
-   gt\enspace·\enspace
-   rms\enspace·\enspace mfcc\enspace·\enspace wavlm\enspace·\enspace silero\enspace·\enspace
+  {\texttt{events\_source} — 9 experiment modes\\\tiny
+   \textbf{gt}\,(data/events/)\enspace·\enspace
+   rms\enspace·\enspace mfcc\enspace·\enspace wavlm\enspace·\enspace silero\\\tiny
    both\enspace·\enspace wavlm+rms\enspace·\enspace wavlm+silero\enspace·\enspace any};
 
 \draw[arr, cDet!75] (det.south) -- (json.north);
-
-%% GT bypass arrow — from distortion label to events box (left edge)
-\node[box, minimum width=1.90cm, fill=cData!10, draw=cData!50]
-  (gtbox) at (-3.60, -2.18) {GT Events (JSON)\\\tiny ground truth};
-
-\draw[arr, cData!50] (hv.south) -- ++(0,-2.18) -- (gtbox.west);
-\draw[arr, cData!50] (gtbox.east) -- (json.west);
 
 %% Row 4 (y=-3.26) — ASR + LLM
 \node[box, minimum width=3.50cm, fill=cInp!15, draw=cInp!60]
@@ -173,7 +166,9 @@ distorted\,(floor), and restored\,(system under test).
 
 \draw[arr, cEval!70] (pd.south) -- (eval.north);
 
-%% Bypass: distorted → eval (right edge)
+%% Bypass: clean (HV) → eval left edge; distorted → eval right edge
+\draw[darr, cData!70]
+  (hv.south) -- ++(0,-5.17) -| (eval.west);
 \draw[darr, cDist!70]
   (da.south) -- ++(0,-5.17) -| (eval.east);
 
@@ -191,11 +186,12 @@ distorted\,(floor), and restored\,(system under test).
 \end{center}
 {\scriptsize\textbf{Figure\,1.}
 End-to-end v5.0 pipeline.
-The Detection Module runs all four methods once and caches results;
+The Detection Module runs all four methods once and caches results to Drive;
 the Experiment Loop selects the appropriate \texttt{events\_source} per run
-without re-running detection.
-Dashed arrow carries distorted audio directly to evaluation for
-three-condition comparison.}
+without re-running detection (\textbf{gt}\,=\,ground-truth timestamps from
+\texttt{data/events/}).
+Dashed arrows carry clean and distorted audio directly to evaluation
+for three-condition comparison.}
 \vspace{4pt}
 }]% end \twocolumn header
 
