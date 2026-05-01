@@ -1,0 +1,21 @@
+{
+  "output": "B03_02.wav",
+  "events": [
+    {
+      "start_sec": 1.0487,
+      "end_sec": 1.1098
+    },
+    {
+      "start_sec": 1.9299,
+      "end_sec": 2.1059
+    },
+    {
+      "start_sec": 2.6943,
+      "end_sec": 2.7191
+    },
+    {
+      "start_sec": 4.9806,
+      "end_sec": 5.1011
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "output": "B06_05.wav",
+  "events": [
+    {
+      "start_sec": 1.9593,
+      "end_sec": 2.0149
+    },
+    {
+      "start_sec": 3.0784,
+      "end_sec": 3.1008
+    },
+    {
+      "start_sec": 4.2822,
+      "end_sec": 4.3823
+    },
+    {
+      "start_sec": 4.66,
+      "end_sec": 4.7614
+    },
+    {
+      "start_sec": 7.7777,
+      "end_sec": 7.9064
+    },
+    {
+      "start_sec": 10.22,
+      "end_sec": 10.3202
+    },
+    {
+      "start_sec": 11.02,
+      "end_sec": 11.12
+    },
+    {
+      "start_sec": 11.62,
+      "end_sec": 11.72
+    },
+    {
+      "start_sec": 12.12,
+      "end_sec": 12.22
+    },
+    {
+      "start_sec": 12.88,
+      "end_sec": 12.98
+    },
+    {
+      "start_sec": 13.42,
+      "end_sec": 13.52
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "output": "B06_04.wav",
+  "events": [
+    {
+      "start_sec": 0.5117,
+      "end_sec": 0.5374
+    },
+    {
+      "start_sec": 3.696,
+      "end_sec": 3.7856
+    },
+    {
+      "start_sec": 6.78,
+      "end_sec": 6.88
+    },
+    {
+      "start_sec": 8.6704,
+      "end_sec": 8.6896
+    },
+    {
+      "start_sec": 10.7039,
+      "end_sec": 10.7718
+    },
+    {
+      "start_sec": 11.0463,
+      "end_sec": 11.1031
+    }
+  ]
+}

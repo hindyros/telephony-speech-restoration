@@ -1,0 +1,45 @@
+{
+  "output": "B04_04.wav",
+  "events": [
+    {
+      "start_sec": 1.3849,
+      "end_sec": 1.4361
+    },
+    {
+      "start_sec": 3.94,
+      "end_sec": 4.0406
+    },
+    {
+      "start_sec": 7.0121,
+      "end_sec": 7.1544
+    },
+    {
+      "start_sec": 7.38,
+      "end_sec": 7.48
+    },
+    {
+      "start_sec": 8.88,
+      "end_sec": 8.98
+    },
+    {
+      "start_sec": 10.54,
+      "end_sec": 10.6402
+    },
+    {
+      "start_sec": 10.9723,
+      "end_sec": 11.1625
+    },
+    {
+      "start_sec": 11.34,
+      "end_sec": 11.4402
+    },
+    {
+      "start_sec": 13.2314,
+      "end_sec": 13.3571
+    },
+    {
+      "start_sec": 14.74,
+      "end_sec": 14.84
+    }
+  ]
+}

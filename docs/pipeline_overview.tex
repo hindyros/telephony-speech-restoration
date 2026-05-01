@@ -1,0 +1,582 @@
+% pipeline_overview.tex
+% Two-page academic overview of the audio restoration pipeline.
+% Compile with: pdflatex pipeline_overview.tex  (single pass, no bibtex needed)
+\documentclass[9pt,twocolumn]{article}
+
+% ── Geometry ─────────────────────────────────────────────────────────────────
+\usepackage[top=0.60in,bottom=0.60in,left=0.55in,right=0.55in,
+            columnsep=0.24in]{geometry}
+
+% ── Fonts & encoding ─────────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{times}
+\usepackage{mathptmx}
+\usepackage{amssymb}
+\usepackage{microtype}
+
+% ── Tables ───────────────────────────────────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+
+% ── Lists ────────────────────────────────────────────────────────────────────
+\usepackage{enumitem}
+\setlist{noitemsep,topsep=2pt,parsep=0pt,partopsep=0pt}
+
+% ── Colors — [table] loads colortbl so \cellcolor works ──────────────────────
+\usepackage[table]{xcolor}
+\definecolor{cData}{RGB}{52,110,180}
+\definecolor{cDist}{RGB}{198,70,55}
+\definecolor{cDet} {RGB}{45,148,90}
+\definecolor{cInp} {RGB}{130,75,185}
+\definecolor{cEval}{RGB}{195,140,35}
+\definecolor{cCut} {RGB}{210,60,50}
+
+% ── TikZ ─────────────────────────────────────────────────────────────────────
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc}
+
+% ── Section spacing ──────────────────────────────────────────────────────────
+\usepackage{titlesec}
+\titlespacing*{\section}{0pt}{5pt}{2pt}
+\titleformat{\section}{\normalfont\bfseries\small}{\thesection}{0.4em}{}
+
+% ── Paragraph spacing ────────────────────────────────────────────────────────
+\setlength{\parskip}{3pt}
+\setlength{\parindent}{7pt}
+
+% ── References ───────────────────────────────────────────────────────────────
+\usepackage[numbers,compress]{natbib}
+\setlength{\bibsep}{2pt}
+
+% ── Hyperlinks ───────────────────────────────────────────────────────────────
+\usepackage[hidelinks]{hyperref}
+
+% ── Allow slight line stretching to eliminate overfull hboxes ────────────────
+\setlength{\emergencystretch}{3em}
+
+% =============================================================================
+\begin{document}
+\pagestyle{empty}
+
+% ── Full-width header: title + abstract + diagram ────────────────────────────
+\twocolumn[{%
+\begin{center}
+{\large\bfseries
+  Blind Detection and Acoustic Inpainting for Telephony Speech Restoration}\\[2pt]
+{\small MIT MBAn GenAI Lab\quad|\quad April 2026}
+\end{center}
+\vspace{2pt}
+\noindent\textbf{Abstract.}\;{\small
+We present an end-to-end pipeline for restoring telephony speech corrupted by
+packet-loss gaps without prior knowledge of cut locations.
+Using the Harper Valley banking corpus~\cite{harpervalley}, SHA256-seeded
+cuts are placed exclusively in VAD-detected speech regions under two fill
+modes: hard zeros (baseline) and RFC\,3389 comfort-noise (realistic).
+Two blind detectors---a sample-level silence scanner and a
+half-wave-rectified spectral-flux detector~\cite{bello2005}---recover
+timestamps.  Gaps are repaired via Qwen3-ASR~\cite{qwen3}\,/\,%
+Whisper~\cite{whisper}, Qwen3-32B text correction, and
+PlayDiffusion~\cite{playdiffusion} with duration-aware routing.
+On 125 synthetic samples, zero-fill Tiers A--D achieve P\,=\,R\,=\,1.00;
+comfort-noise Tier~E (P\,=\,0.03) exposes the signal-processing ceiling.
+Word-error rate (WER) complements correct-action rate (CAR) in evaluation.
+}
+\vspace{3pt}
+
+% ── Inline pipeline diagram ──────────────────────────────────────────────────
+\begin{center}
+\vspace{-2pt}
+\begin{tikzpicture}[
+  every node/.style={font=\scriptsize\sffamily, align=center},
+  box/.style ={rectangle, rounded corners=2pt, draw, thick,
+               text centered, inner sep=2.5pt, minimum height=0.46cm},
+  arr/.style ={-{Stealth[length=3.8pt,width=3pt]}, thick},
+  darr/.style={-{Stealth[length=3.8pt,width=3pt]}, thick, dashed, opacity=0.6},
+  x=1cm, y=1cm,
+]
+
+%% Row 1 (y=0) — data + distortion (symmetric around x=0)
+\node[box, minimum width=2.45cm, fill=cData!18, draw=cData!70]
+  (hv)  at (-3.60,  0.00) {Harper Valley\\\tiny 8 tasks · 16\,kHz · mono};
+\node[box, minimum width=2.80cm, fill=cDist!15, draw=cDist!60]
+  (vad) at ( 0.00,  0.00) {VAD-Aware Distortion\\\tiny 20\,ms · adaptive\,$\tau$};
+\node[box, minimum width=2.45cm, fill=cDist!25, draw=cDist!70]
+  (da)  at ( 3.60,  0.00) {Distorted Audio\\\tiny 4 cuts · 1–200\,ms · SHA256};
+
+\draw[arr, cDist!70] (hv)  -- (vad);
+\draw[arr, cDist!70] (vad) -- (da);
+
+%% Row 2 (y=-1.10) — blind detectors (symmetric ±1.8)
+\node[box, minimum width=2.45cm, fill=cDet!18, draw=cDet!65]
+  (sil) at (-1.80, -1.10) {Silence Detector\\\tiny $|x[n]|{<}10^{-4}$\,·\,pre-ctx};
+\node[box, minimum width=2.45cm, fill=cDet!18, draw=cDet!65]
+  (sf)  at ( 1.80, -1.10) {Spectral-Flux\\\tiny HWR-STFT\,·\,99.5th\,pct};
+
+\coordinate (dafork) at (0.00, -0.57);
+\draw[arr, cDet!65] (da.south) |- (dafork);
+\draw[arr, cDet!65] (dafork)   -| (sil.north);
+\draw[arr, cDet!65] (dafork)   -| (sf.north);
+
+%% Row 3 (y=-2.18) — JSON timestamps
+\node[box, minimum width=2.80cm, fill=cDet!30, draw=cDet!75]
+  (json) at (0.00, -2.18) {Cut Timestamps (JSON)\\\tiny start\_sec · end\_sec · type};
+
+\draw[arr, cDet!75] (sil.south) |- (json.west);
+\draw[arr, cDet!75] (sf.south)  |- (json.east);
+
+%% Row 4 (y=-3.26) — ASR + LLM (symmetric ±1.8)
+\node[box, minimum width=2.45cm, fill=cInp!15, draw=cInp!60]
+  (asr) at (-1.80, -3.26) {Qwen3-ASR-1.7B\\\tiny words + timestamps};
+\node[box, minimum width=2.45cm, fill=cInp!15, draw=cInp!60]
+  (llm) at ( 1.80, -3.26) {Qwen3-32B (LLM)\\\tiny transcript correction};
+
+\coordinate (jsonfork) at (0.00, -2.73);
+\draw[arr, cInp!60] (json.south) -- (jsonfork);
+\draw[arr, cInp!60] (jsonfork)   -| (asr.north);
+\draw[arr, cInp!60] (jsonfork)   -| (llm.north);
+
+%% Row 5 (y=-4.34) — inpainting
+\node[box, minimum width=5.10cm, fill=cInp!28, draw=cInp!70]
+  (pd) at (0.00, -4.34)
+  {PlayDiffusion Inpainting\\\tiny
+   silence$\!\to\!$crossfade\;$|$\;
+   glitch$\!\to\!$text-diff\;$|$\;
+   normal$\!\to\!$InpaintInput};
+
+\draw[arr, cInp!70] (asr.south) |- (pd.west);
+\draw[arr, cInp!70] (llm.south) |- (pd.east);
+
+%% Row 6 (y=-5.40) — evaluation
+\node[box, minimum width=5.10cm, fill=cEval!22, draw=cEval!70]
+  (eval) at (0.00, -5.40)
+  {Agent Evaluation\\\tiny
+   \textcolor{cData!80}{\textbf{clean}}\;/\;
+   \textcolor{cDist!80}{\textbf{distorted}}\;/\;
+   \textcolor{cInp!80}{\textbf{restored}}\quad$\to$\quad
+   correct-action rate (CAR)};
+
+\draw[arr, cEval!70] (pd.south) -- (eval.north);
+
+%% Bypass arrows — run along outer edges, clear of all nodes
+\draw[darr, cData!70]
+  (hv.south) -- ++(0,-5.17) -| (eval.west);
+\draw[darr, cDist!70]
+  (da.south) -- ++(0,-5.17) -| (eval.east);
+
+%% Legend
+\node[font=\tiny\sffamily, anchor=north west, text=gray!75]
+  at (-3.80, -5.88)
+  {\textcolor{cData!80}{$\blacksquare$}\,data\enspace
+   \textcolor{cDist!80}{$\blacksquare$}\,distortion\enspace
+   \textcolor{cDet!80}{$\blacksquare$}\,detection\enspace
+   \textcolor{cInp!80}{$\blacksquare$}\,inpainting\enspace
+   \textcolor{cEval!80}{$\blacksquare$}\,evaluation\enspace
+   \textcolor{gray!60}{$\cdots$}\,bypass};
+
+\end{tikzpicture}
+\end{center}
+{\scriptsize\textbf{Figure\,1.}
+End-to-end pipeline.
+Dashed arrows carry
+\textcolor{cData!80}{\textbf{clean}} and
+\textcolor{cDist!80}{\textbf{distorted}} audio directly to evaluation
+for three-condition comparison.}
+\vspace{4pt}
+}]% end \twocolumn header
+
+% =============================================================================
+% Two-column body
+% =============================================================================
+
+\section{Dataset and Distortion Model}
+\label{sec:distortion}
+
+The \textbf{Gridspace Stanford Harper Valley} corpus~\cite{harpervalley}
+provides real telephony conversations for 8 banking actions at 16\,kHz mono.
+\texttt{generate\_distorted\_audio.py} first runs an energy-based VAD on 20\,ms
+frames, labelling speech whenever RMS exceeds
+$\tau{=}\hat\mu_\mathrm{ns}+0.02(\hat\sigma_\mathrm{pk}-\hat\mu_\mathrm{ns})$
+(20th-percentile noise floor plus 2\% of the dynamic range).
+Four cuts per file, drawn uniformly from $[1,200]$\,ms, are placed
+\emph{exclusively inside speech regions}: Harper Valley audio is
+${\approx}$10\% speech, so blind placement would mostly hit silence.
+Distortion is seeded by SHA256(\textit{stem})[:8], ensuring full
+determinism without a manifest.
+A second fill mode (\texttt{--fill-mode\,comfort-noise}) replaces zeroed
+samples with bandpass-filtered Gaussian noise ($300$--$3\,400$\,Hz) scaled
+to the local noise floor via a 20\,ms context window---modelling RFC\,3389
+comfort-noise injection and cosine-faded at boundaries to prevent clicks.
+
+% ── Figure 2 floats to the top of the next page ──────────────────────────────
+\begin{figure*}[!t]
+\centering
+\begin{tikzpicture}[
+  every node/.style={font=\scriptsize\sffamily, align=left},
+  x=1cm, y=1cm,
+]
+
+%%──────────────────────────────────────────────────────────────────────────────
+%% PANEL (i): Cut in inter-word silence (y-offset = 0)
+%%──────────────────────────────────────────────────────────────────────────────
+\begin{scope}[yshift=0cm]
+  %% Time axis
+  \draw[->, gray!45, thin] (-0.15, 0) -- (10.3, 0)
+    node[right, font=\tiny\sffamily, text=gray!60] {$t$};
+
+  %% Speech "balance" (x = 0.2 → 3.0)
+  \draw[cData!70, line width=0.8pt]
+    plot[smooth, tension=0.75] coordinates {
+      (0.20, 0.00) (0.50, 0.31) (0.85,-0.29) (1.20, 0.34)
+      (1.55,-0.27) (1.90, 0.33) (2.25,-0.30) (2.60, 0.26)
+      (2.85,-0.16) (3.00, 0.00)
+    };
+
+  %% Natural pause before cut (x = 3.0 → 3.5), near-flat
+  \draw[gray!50, line width=0.6pt]
+    plot[smooth] coordinates {
+      (3.00, 0.00) (3.15, 0.02) (3.35,-0.02) (3.50, 0.00)
+    };
+
+  %% CUT region (x = 3.5 → 4.7): red filled box
+  \fill[cCut!17] (3.50,-0.52) rectangle (4.70, 0.52);
+  \draw[cCut!65, thick, dashed] (3.50,-0.52) rectangle (4.70, 0.52);
+
+  %% Natural pause after cut (x = 4.7 → 5.2)
+  \draw[gray!50, line width=0.6pt]
+    plot[smooth] coordinates {
+      (4.70, 0.00) (4.85, 0.02) (5.05,-0.02) (5.20, 0.00)
+    };
+
+  %% Speech "account" (x = 5.2 → 9.8)
+  \draw[cData!70, line width=0.8pt]
+    plot[smooth, tension=0.75] coordinates {
+      (5.20, 0.00) (5.55,-0.30) (5.90, 0.33) (6.25,-0.28)
+      (6.60, 0.34) (6.95,-0.27) (7.30, 0.35) (7.65,-0.26)
+      (8.00, 0.31) (8.35,-0.24) (8.70, 0.27) (9.10,-0.18)
+      (9.50, 0.11) (9.80, 0.00)
+    };
+
+  %% Word-boundary dashed lines
+  \draw[gray!30, thin, dashed] (3.00,-0.56) -- (3.00, 0.64);
+  \draw[gray!30, thin, dashed] (5.20,-0.56) -- (5.20, 0.64);
+
+  %% Labels above
+  \node[above, text=cData!80, font=\tiny\sffamily\itshape]
+    at (1.60, 0.38) {``balance''};
+  \node[above, text=cData!80, font=\tiny\sffamily\itshape]
+    at (7.50, 0.38) {``account''};
+  \node[above, text=cCut!80,  font=\tiny\sffamily\bfseries, align=center]
+    at (4.10, 0.53) {cut};
+
+  %% Annotations below
+  \node[below, text=gray!65, font=\tiny\sffamily] at (4.10,-0.57)
+    {inter-word silence (within VAD speech region)};
+  \node[text=cDet!75, font=\tiny\sffamily, anchor=west]
+    at (0.00,-0.95)
+    {Detection: pre-context check may fire → event suppressed as natural pause};
+  \node[text=cInp!75, font=\tiny\sffamily, anchor=west]
+    at (0.00,-1.25)
+    {Routing: \textbf{crossfade} (no ASR word overlap at gap)};
+
+  %% Panel label
+  \node[font=\small\sffamily\bfseries, text=black, anchor=east]
+    at (-0.15, 0) {(i)};
+\end{scope}
+
+%%──────────────────────────────────────────────────────────────────────────────
+%% PANEL (ii): Cut at word boundary (y-offset = -2.5)
+%%──────────────────────────────────────────────────────────────────────────────
+\begin{scope}[yshift=-2.5cm]
+  \draw[->, gray!45, thin] (-0.15, 0) -- (10.3, 0)
+    node[right, font=\tiny\sffamily, text=gray!60] {$t$};
+
+  %% Speech "check" (x = 0.2 → 3.8)
+  \draw[cData!70, line width=0.8pt]
+    plot[smooth, tension=0.75] coordinates {
+      (0.20, 0.00) (0.55, 0.32) (0.90,-0.29) (1.25, 0.35)
+      (1.60,-0.28) (1.95, 0.33) (2.30,-0.30) (2.65, 0.34)
+      (3.00,-0.26) (3.35, 0.24) (3.65,-0.14) (3.80, 0.00)
+    };
+
+  %% CUT region straddles word boundary (x = 3.8 → 5.4)
+  \fill[cCut!17] (3.80,-0.52) rectangle (5.40, 0.52);
+  \draw[cCut!65, thick, dashed] (3.80,-0.52) rectangle (5.40, 0.52);
+
+  %% Word boundary (x = 4.6) shown as line through cut box
+  \draw[gray!35, thin, dashed] (4.60,-0.56) -- (4.60, 0.64);
+
+  %% Speech "balance" (x = 5.4 → 9.8)
+  \draw[cData!70, line width=0.8pt]
+    plot[smooth, tension=0.75] coordinates {
+      (5.40, 0.00) (5.75,-0.30) (6.10, 0.34) (6.45,-0.28)
+      (6.80, 0.33) (7.15,-0.28) (7.50, 0.35) (7.85,-0.26)
+      (8.20, 0.31) (8.55,-0.23) (8.90, 0.27) (9.25,-0.17)
+      (9.55, 0.10) (9.80, 0.00)
+    };
+
+  %% Labels above
+  \node[above, text=cData!80, font=\tiny\sffamily\itshape]
+    at (2.00, 0.38) {``check''};
+  \node[above, text=cData!80, font=\tiny\sffamily\itshape]
+    at (7.60, 0.38) {``balance''};
+  \node[above, text=cCut!80, font=\tiny\sffamily\bfseries, align=center]
+    at (4.60, 0.53) {cut};
+  \node[above, text=gray!55, font=\tiny\sffamily]
+    at (4.60, 0.60) {\tiny word boundary};
+
+  %% Annotations below
+  \node[below, text=gray!65, font=\tiny\sffamily] at (4.60,-0.57)
+    {cut straddles word boundary};
+  \node[text=cDet!75, font=\tiny\sffamily, anchor=west]
+    at (0.00,-0.95)
+    {Detection: silence detector catches sudden amplitude drop};
+  \node[text=cInp!75, font=\tiny\sffamily, anchor=west]
+    at (0.00,-1.25)
+    {Routing: \textbf{crossfade} (ASR word timestamps do not overlap gap centre)};
+
+  \node[font=\small\sffamily\bfseries, text=black, anchor=east]
+    at (-0.15, 0) {(ii)};
+\end{scope}
+
+%%──────────────────────────────────────────────────────────────────────────────
+%% PANEL (iii): Cut mid-word (y-offset = -5.0)
+%%──────────────────────────────────────────────────────────────────────────────
+\begin{scope}[yshift=-5.0cm]
+  \draw[->, gray!45, thin] (-0.15, 0) -- (10.3, 0)
+    node[right, font=\tiny\sffamily, text=gray!60] {$t$};
+
+  %% Speech "transfer" — first half (x = 0.2 → 2.8)
+  \draw[cData!70, line width=0.8pt]
+    plot[smooth, tension=0.75] coordinates {
+      (0.20, 0.00) (0.55, 0.33) (0.90,-0.30) (1.25, 0.36)
+      (1.60,-0.29) (1.95, 0.34) (2.30,-0.28) (2.60, 0.20)
+      (2.80, 0.00)
+    };
+
+  %% CUT region mid-word (x = 2.8 → 4.2)
+  \fill[cCut!17] (2.80,-0.52) rectangle (4.20, 0.52);
+  \draw[cCut!65, thick, dashed] (2.80,-0.52) rectangle (4.20, 0.52);
+
+  %% Speech "transfer" — second half (x = 4.2 → 6.4)
+  \draw[cData!70, line width=0.8pt]
+    plot[smooth, tension=0.75] coordinates {
+      (4.20, 0.00) (4.55, 0.30) (4.90,-0.28) (5.25, 0.33)
+      (5.60,-0.26) (5.95, 0.23) (6.20,-0.13) (6.40, 0.00)
+    };
+
+  %% Speech "money" (x = 7.2 → 9.8)
+  \draw[cData!70, line width=0.8pt]
+    plot[smooth, tension=0.75] coordinates {
+      (7.20, 0.00) (7.55,-0.30) (7.90, 0.34) (8.25,-0.27)
+      (8.60, 0.32) (8.95,-0.23) (9.30, 0.21) (9.60,-0.11)
+      (9.80, 0.00)
+    };
+
+  %% Word-boundary markers for "transfer" token (full extent x=0.2 to x=6.4)
+  \draw[gray!35, thin, dashed] (0.20,-0.56) -- (0.20, 0.76);
+  \draw[gray!35, thin, dashed] (6.40,-0.56) -- (6.40, 0.76);
+
+  %% Labels above
+  %% "transfer" token label spans boundary markers; "cut" label above box
+  \node[above, text=cData!80, font=\tiny\sffamily\itshape, align=center]
+    at (3.30, 0.66) {``transfer'' (single ASR token)};
+  \node[above, text=cCut!80, font=\tiny\sffamily\bfseries]
+    at (3.50, 0.53) {cut};
+  \node[above, text=cData!80, font=\tiny\sffamily\itshape]
+    at (8.50, 0.38) {``money''};
+
+  %% Annotation below
+  \node[below, text=gray!65, font=\tiny\sffamily] at (3.50,-0.57)
+    {cut lies entirely within one word token};
+  \node[text=cDet!75, font=\tiny\sffamily, anchor=west]
+    at (0.00,-0.95)
+    {Detection: silence or spectral-flux detector (both applied)};
+  \node[text=cInp!75, font=\tiny\sffamily, anchor=west]
+    at (0.00,-1.25)
+    {Routing (${\geq}$20\,ms): adaptive MFCC check $\to$ TTS regen \textbf{or} PlayDiffusion};
+
+  \node[font=\small\sffamily\bfseries, text=black, anchor=east]
+    at (-0.15, 0) {(iii)};
+\end{scope}
+
+\end{tikzpicture}
+\vspace{4pt}
+{\scriptsize\textbf{Figure\,2.}
+The three cut location types relative to the ASR word lattice.
+Blue curves are schematic speech waveforms; red dashed boxes mark the
+removed (or zeroed) region; grey dashed verticals are word-token
+boundaries.
+Detection behaviour and inpainting routing differ for each type:
+inter-word silence (i) may be suppressed by the pre-context check;
+word-boundary cuts (ii) are caught but need only crossfade; mid-word
+cuts (iii) require full neural inpainting when the gap exceeds 20\,ms.}
+\end{figure*}
+
+\section{Cut Taxonomy}
+\label{sec:taxonomy}
+
+Packet-loss cuts are not homogeneous.  They vary along two independent
+dimensions---\emph{where} in the speech stream the gap falls and
+\emph{how long} it lasts---and each combination requires a different
+handling strategy.  A third axis, fill mode (\S\ref{sec:distortion}),
+governs detectability.  Figure~2 illustrates the three location types;
+Table~1 summarises routing across all combinations.
+
+\noindent\textbf{Location.}
+Cuts fall in one of three positions relative to ASR word timestamps.
+\emph{(i) Inter-word silence:} the gap lies entirely within a natural
+pause between adjacent words (still inside a VAD-active region).  No
+phonetic content is removed.  The pre-context silence check may suppress
+this event as a natural pause; if detected, crossfade suffices.
+\emph{(ii) Word boundary:} the gap straddles the transition between two
+words.  ASR places both adjacent tokens outside the gap, so no word
+overlap is reported and crossfade is applied.
+\emph{(iii) Mid-word:} the gap falls entirely within one word token.
+ASR confirms overlap.  For gaps shorter than 20\,ms crossfade is used
+unconditionally (perceptually transparent).  For longer gaps the adaptive
+MFCC check (\S\ref{sec:inpainting}) selects between TTS regeneration
+and PlayDiffusion inpainting.
+
+\noindent\textbf{Duration.}
+Cuts below 5\,ms (Tier\,C) are sub-threshold for most listeners; 5--20\,ms
+(Tier\,B) produce a click while preserving intelligibility; 20--200\,ms
+(Tier\,A) cause word-level loss.  Comfort-noise fills (Tier\,E, any
+duration) defeat all signal-processing detectors because the fill is
+spectrally indistinguishable from the telephony background.
+
+\noindent\textbf{Table\,1 — Routing matrix.}
+Crossfade (CF) handles the entire matrix except the single cell where
+a mid-word gap exceeds 20\,ms and neural inpainting is needed.
+
+\smallskip
+{\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{lXXX}
+\toprule
+\textbf{Location} & \textbf{$<$5\,ms} & \textbf{5--20\,ms}
+  & \textbf{$\geq$20\,ms} \\
+\midrule
+In silence
+  & \cellcolor{cDet!14}CF$^{*}$
+  & \cellcolor{cDet!14}CF$^{*}$
+  & \cellcolor{cDet!14}CF$^{*}$ \\
+Word boundary
+  & \cellcolor{cDet!14}CF
+  & \cellcolor{cDet!14}CF
+  & \cellcolor{cDet!14}CF \\
+Mid-word
+  & \cellcolor{cDet!14}CF
+  & \cellcolor{cDet!14}CF
+  & \cellcolor{cInp!20}MFCC\,${\to}$\,TTS\,/\,PD \\
+\bottomrule
+\end{tabularx}
+}
+\vspace{1pt}
+{\tiny CF\,=\,crossfade; PD\,=\,PlayDiffusion.\quad
+$^{*}$Detector may suppress event as natural pause (pre-context check).}
+
+\section{Blind Cut Detection}
+\label{sec:detection}
+
+\texttt{detect\_cuts.py} recovers timestamps without ground-truth access
+using two complementary detectors.
+
+\noindent\textbf{Silence detector.}
+Contiguous samples with $|x[n]|\leq10^{-4}$ for $\geq0.5$\,ms are flagged.
+A 5\,ms pre-context check discards regions where the preceding audio was
+already quiet (natural pauses), retaining only sudden amplitude drops.
+
+\noindent\textbf{Spectral-flux detector.}
+STFT magnitude (10\,ms Hann window, 2\,ms hop) is computed frame-by-frame.
+Half-wave-rectified flux
+$\Phi_k{=}\sum_b\max(0,|M_{k,b}|{-}|M_{k{-}1,b}|)$
+flags abrupt spectral increases~\cite{bello2005};
+peaks above the 99.5th percentile within 10\,ms are merged.
+Spectral peaks overlapping a silent region are absorbed.
+
+\noindent\textbf{Evaluation} on 125 synthetic telephony-noise clips
+(300--3\,400\,Hz, five tiers A--E by cut type):
+
+{\footnotesize\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{lcccc}
+\toprule
+Tier & $n$ & Range & P & R / F\textsubscript{1} \\
+\midrule
+A easy   & 25 & 20--200\,ms & 1.000 & 1.000 \\
+B medium & 25 &  5--20\,ms  & 1.000 & 1.000 \\
+C hard   & 25 &   1--5\,ms  & 1.000 & 1.000 \\
+D mixed  & 25 &  1--200\,ms & 1.000 & 1.000 \\
+E cn     & 25 &  1--200\,ms & 0.029 & 0.103 \\
+\midrule
+\textbf{A--D} & 100 & --- & \textbf{1.000} & \textbf{1.000}\\
+\bottomrule
+\end{tabularx}}
+\vspace{2pt}
+{\tiny TP\,=\,257, FP\,=\,FN\,=\,0 (Tiers A--D, zero-fill).\;
+Tier\,E (comfort-noise): fill is spectrally identical to telephony
+background noise $\Rightarrow$ signal-processing detection ceiling;
+neural methods required.}
+
+\section{Audio Inpainting}
+\label{sec:inpainting}
+
+Each detected gap passes through three chained models (Google Colab, T4).
+
+\noindent\textbf{Transcription.}
+\textbf{Qwen3-ASR-1.7B}~\cite{qwen3} generates word-level timestamps via
+forced alignment; \textbf{Whisper}~\cite{whisper} provides a fallback.
+
+\noindent\textbf{Correction.}
+The broken transcript is sent to \textbf{Qwen3-32B}~\cite{qwen3}
+(OpenRouter) to infer the intended sentence near the cut.
+
+\noindent\textbf{PlayDiffusion}~\cite{playdiffusion} fills gaps under
+three routing rules (see also Table~1):
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Short or silence gap:} duration ${<}20$\,ms \emph{or} no ASR
+  word overlap; linear crossfade only---perceptually transparent and
+  preserves speaker identity.
+\item \emph{Acoustic glitch:} MFCC $L_2$ exceeds the per-file 95th-pct
+  frame-distance baseline (adaptive threshold, not hardcoded); overlapping
+  tokens are removed to force regeneration.
+\item \emph{Normal mid-word gap:} \texttt{InpaintInput} with ASR-snapped
+  word boundaries and LLM-corrected \texttt{output\_text}.
+\end{enumerate}
+
+\section{Agent Evaluation}
+\label{sec:agent}
+
+\texttt{eval\_runner.py} parses action labels from filenames
+(\texttt{B03\_05.wav\,$\to$\,B03}) and scores 8 banking tasks across
+three conditions.
+\textbf{Correct-action rate (CAR):} Whisper~\cite{whisper} transcribes
+each file; a keyword-scoring classifier assigns one of the 8 banking tasks.
+Clean\,/\,distorted\,/\,restored audio set ceiling, floor, and system
+under test: $\mathrm{CAR}(\mathrm{restored})>\mathrm{CAR}(\mathrm{distorted})$.
+\textbf{WER} vs.\ clean references (stdlib edit-distance) traces the causal
+chain: cuts$\to$WER$\uparrow\to$CAR$\downarrow$;
+restoration$\to$WER$\downarrow\to$CAR$\uparrow$.
+
+{\footnotesize\setlength{\bibsep}{2pt}
+\begin{thebibliography}{9}
+\bibitem{harpervalley}
+E.~Lichtarge \textit{et al.}
+Gridspace-Stanford Harper Valley Speech, 2020.
+\bibitem{whisper}
+A.~Radford \textit{et al.}
+Robust speech recognition via large-scale weak supervision.
+\textit{ICML}, 2023.
+\bibitem{qwen3}
+Qwen Team.
+Qwen3 technical report. \textit{arXiv:2505.09388}, 2025.
+\bibitem{playdiffusion}
+PlayHT~Inc.
+PlayDiffusion: neural audio inpainting, 2024.
+\bibitem{bello2005}
+J.\,P.~Bello \textit{et al.}
+A tutorial on onset detection.
+\textit{IEEE Trans.\ Speech Audio Process.}, 13(5):1035--1047, 2005.
+\end{thebibliography}
+}
+
+\end{document}

@@ -1,9 +1,14 @@
 data/raw/
-data/synthetic/
-data/distorted/
-data/restored/
 results/*.csv
 results/*.json
 __pycache__/
 *.pyc
 .DS_Store
+
+# PlayDiffusion is cloned by the notebook at runtime — not committed
+notebooks/PlayDiffusion/
+
+# LaTeX build artefacts
+docs/*.aux
+docs/*.log
+docs/*.out

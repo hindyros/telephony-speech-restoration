@@ -1,0 +1,37 @@
+{
+  "output": "B05_03.wav",
+  "events": [
+    {
+      "start_sec": 0.2376,
+      "end_sec": 0.4188
+    },
+    {
+      "start_sec": 1.0373,
+      "end_sec": 1.2159
+    },
+    {
+      "start_sec": 2.5,
+      "end_sec": 2.6001
+    },
+    {
+      "start_sec": 3.4446,
+      "end_sec": 3.4467
+    },
+    {
+      "start_sec": 4.6,
+      "end_sec": 4.7024
+    },
+    {
+      "start_sec": 4.9102,
+      "end_sec": 4.9634
+    },
+    {
+      "start_sec": 7.1252,
+      "end_sec": 7.2795
+    },
+    {
+      "start_sec": 7.48,
+      "end_sec": 7.58
+    }
+  ]
+}

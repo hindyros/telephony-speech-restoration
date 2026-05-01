@@ -1,0 +1,45 @@
+{
+  "output": "B08_02.wav",
+  "events": [
+    {
+      "start_sec": 1.3184,
+      "end_sec": 1.4451
+    },
+    {
+      "start_sec": 1.66,
+      "end_sec": 1.7605
+    },
+    {
+      "start_sec": 4.1599,
+      "end_sec": 4.2601
+    },
+    {
+      "start_sec": 8.5199,
+      "end_sec": 8.62
+    },
+    {
+      "start_sec": 10.4965,
+      "end_sec": 10.6929
+    },
+    {
+      "start_sec": 10.88,
+      "end_sec": 10.9801
+    },
+    {
+      "start_sec": 13.874,
+      "end_sec": 13.9494
+    },
+    {
+      "start_sec": 16.5745,
+      "end_sec": 16.5768
+    },
+    {
+      "start_sec": 18.1216,
+      "end_sec": 18.2104
+    },
+    {
+      "start_sec": 19.12,
+      "end_sec": 19.2201
+    }
+  ]
+}

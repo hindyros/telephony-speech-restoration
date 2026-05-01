@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 """Generate packet-loss-corrupted audio for the eval's distorted condition.
 
-Corruption model: random silent cuts (zeroed samples) inserted at random
-positions **within detected speech regions**, matching the approach in
-hindyros/phronetic-ai-audioinpainting.
+Two fill modes are supported (--fill-mode):
 
-Harper Valley caller audio is ~10% speech; placing cuts blindly means
-almost all of them land in silence. VAD-aware placement ensures every
-cut hits actual speech so the distortion is meaningful and the restoration
-task is well-defined.
+  zeros          Original model: zeroed samples.  Trivially detected by the
+                 silence detector (P=R=F1=1.00), useful as a baseline.
 
-VAD uses a simple energy threshold — no extra dependencies beyond numpy.
+  comfort-noise  Realistic model: cut region is filled with bandpass-filtered
+                 Gaussian noise whose RMS matches the local noise floor
+                 (RFC 3389 comfort-noise concept).  Forces the spectral-flux
+                 detector to do the heavy lifting; silence detector will miss
+                 most events.
+
+Corruption is VAD-aware — cuts are placed only inside detected speech regions.
+Harper Valley caller audio is ~10% speech; blind placement would mostly hit
+silence.  Seeded by SHA256(stem) for full determinism without a manifest.
 """
 
 from __future__ import annotations
@@ -50,6 +54,72 @@ def rng_for_file(path: Path) -> np.random.Generator:
 
 
 # ---------------------------------------------------------------------------
+# Comfort-noise fill (RFC 3389 inspired)
+# ---------------------------------------------------------------------------
+
+def generate_comfort_noise(
+    audio: np.ndarray,
+    sample_rate: int,
+    start: int,
+    end: int,
+    rng: np.random.Generator,
+    *,
+    context_ms: float = 20.0,
+) -> np.ndarray:
+    """Return telephony-band comfort noise matching the local noise floor.
+
+    Steps
+    -----
+    1. Estimate target RMS from 20 ms of surrounding context.
+    2. Generate white Gaussian noise and brick-wall bandpass filter it to
+       300–3 400 Hz (standard telephony band) via FFT — pure numpy, no scipy.
+    3. Scale filtered noise to target RMS.
+    4. Apply 5 ms cosine fade-in / fade-out to eliminate click artefacts at
+       cut boundaries.
+
+    Parameters
+    ----------
+    audio       : full waveform (used only to read surrounding context)
+    sample_rate : samples per second
+    start, end  : sample indices of the region to fill
+    context_ms  : how many ms on each side to use for noise-floor estimation
+    """
+    context_samples = ms_to_samples(context_ms, sample_rate)
+    pre  = audio[max(0, start - context_samples):start]
+    post = audio[end:min(len(audio), end + context_samples)]
+    context = np.concatenate([pre, post])
+
+    if len(context) > 0:
+        target_rms = float(np.sqrt(np.mean(context ** 2)))
+        target_rms = max(target_rms, 1e-5)
+    else:
+        target_rms = 1e-4
+
+    n_samples = end - start
+    if n_samples <= 0:
+        return np.array([], dtype=np.float32)
+
+    noise = rng.standard_normal(n_samples).astype(np.float32)
+    spectrum = np.fft.rfft(noise)
+    freqs = np.fft.rfftfreq(n_samples, d=1.0 / sample_rate)
+    spectrum[(freqs < 300.0) | (freqs > 3400.0)] = 0.0
+    noise = np.fft.irfft(spectrum, n=n_samples).astype(np.float32)
+
+    noise_rms = float(np.sqrt(np.mean(noise ** 2)))
+    if noise_rms > 0:
+        noise *= target_rms / noise_rms
+
+    fade_samples = min(ms_to_samples(5.0, sample_rate), n_samples // 4)
+    if fade_samples > 1:
+        ramp = (0.5 * (1.0 - np.cos(np.pi * np.arange(fade_samples) / fade_samples))
+                ).astype(np.float32)
+        noise[:fade_samples]  *= ramp
+        noise[-fade_samples:] *= ramp[::-1]
+
+    return noise
+
+
+# ---------------------------------------------------------------------------
 # Energy-based VAD
 # ---------------------------------------------------------------------------
 
@@ -68,11 +138,8 @@ def find_speech_regions(
     avoid fragmenting individual words.
     """
     frame_samples = ms_to_samples(frame_ms, sample_rate)
-    peak_rms = float(np.sqrt(np.mean(audio ** 2)))
-    if peak_rms == 0:
+    if float(np.sqrt(np.mean(audio ** 2))) == 0:
         return []
-    threshold = energy_threshold * np.sqrt(np.mean(audio ** 2) +
-                                           np.max(audio ** 2)) / 2
     # per-frame RMS
     n_frames = len(audio) // frame_samples
     frame_rms = np.array([
@@ -121,7 +188,7 @@ def find_speech_regions(
 
 
 # ---------------------------------------------------------------------------
-# Core corruption: VAD-aware random silent cuts
+# Core corruption: VAD-aware random cuts
 # ---------------------------------------------------------------------------
 
 def apply_random_cuts(
@@ -131,20 +198,24 @@ def apply_random_cuts(
     speech_regions: list[tuple[int, int]],
     num_cuts: int = 4,
     cut_ms_range: tuple[float, float] = (1.0, 200.0),
+    fill_mode: str = "zeros",
 ) -> tuple[np.ndarray, list[dict[str, Any]]]:
-    """Insert *num_cuts* silent gaps, sampled only from *speech_regions*.
+    """Insert *num_cuts* gaps, sampled only from *speech_regions*.
+
+    Parameters
+    ----------
+    fill_mode : ``"zeros"`` — zero out the cut (hard silence, original model).
+                ``"comfort-noise"`` — fill with bandpass-filtered noise at the
+                local noise floor (realistic RFC 3389 comfort noise).
 
     If no speech regions are detected, falls back to the full waveform so
     the script never silently skips a file.
     """
     if not speech_regions:
-        # fallback: treat whole file as one region
         speech_regions = [(0, len(audio))]
 
-    # build a pool of valid cut-start positions: all samples inside speech
-    # regions where a cut of at least cut_min_ms fits before the region ends
     min_cut_samples = ms_to_samples(cut_ms_range[0], sample_rate)
-    candidates: list[tuple[int, int]] = []   # (region_start, region_end)
+    candidates: list[tuple[int, int]] = []
     for reg_start, reg_end in speech_regions:
         if reg_end - reg_start >= min_cut_samples:
             candidates.append((reg_start, reg_end))
@@ -171,11 +242,16 @@ def apply_random_cuts(
         start = int(rng.integers(reg_start, max(reg_start + 1, max_start + 1)))
         end = min(len(audio), start + cut_samples)
 
-        audio[start:end] = 0.0
+        if fill_mode == "comfort-noise":
+            audio[start:end] = generate_comfort_noise(audio, sample_rate, start, end, rng)
+        else:
+            audio[start:end] = 0.0
+
         events.append({
-            "start_sec": round(start / sample_rate, 4),
-            "end_sec": round(end / sample_rate, 4),
+            "start_sec":   round(start / sample_rate, 4),
+            "end_sec":     round(end   / sample_rate, 4),
             "duration_ms": round(cut_ms, 2),
+            "fill_mode":   fill_mode,
         })
 
     events.sort(key=lambda e: e["start_sec"])
@@ -191,6 +267,7 @@ def distort_file(
     output_path: Path,
     num_cuts: int,
     cut_ms_range: tuple[float, float],
+    fill_mode: str = "zeros",
 ) -> dict[str, Any]:
     audio, sample_rate = load_mono_audio(input_path)
     rng = rng_for_file(input_path)
@@ -203,16 +280,18 @@ def distort_file(
         speech_regions=speech_regions,
         num_cuts=num_cuts,
         cut_ms_range=cut_ms_range,
+        fill_mode=fill_mode,
     )
     save_audio(output_path, corrupted, sample_rate)
     return {
-        "filename": input_path.name,
-        "duration_sec": round(len(audio) / sample_rate, 3),
-        "speech_sec": round(speech_sec, 3),
+        "filename":       input_path.name,
+        "duration_sec":   round(len(audio) / sample_rate, 3),
+        "speech_sec":     round(speech_sec, 3),
         "speech_regions": len(speech_regions),
-        "sample_rate": sample_rate,
-        "num_cuts": len(events),
-        "cuts": json.dumps(events),
+        "sample_rate":    sample_rate,
+        "num_cuts":       len(events),
+        "fill_mode":      fill_mode,
+        "cuts":           json.dumps(events),
     }
 
 
@@ -231,11 +310,21 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--manifest", default="data/distorted/distortion_manifest.csv",
                         help="CSV file to write corruption metadata.")
     parser.add_argument("--num-cuts", type=int, default=4,
-                        help="Silent cuts per file (default: 4).")
+                        help="Cuts per file (default: 4).")
     parser.add_argument("--cut-min-ms", type=float, default=1.0,
                         help="Minimum cut duration in ms (default: 1).")
     parser.add_argument("--cut-max-ms", type=float, default=200.0,
                         help="Maximum cut duration in ms (default: 200).")
+    parser.add_argument(
+        "--fill-mode", choices=["zeros", "comfort-noise"], default="zeros",
+        help=(
+            "How to fill cut regions.  "
+            "'zeros' (default): hard silence — trivially detected by the silence "
+            "detector, good as a controlled baseline.  "
+            "'comfort-noise': bandpass-filtered noise at the local noise floor, "
+            "modelling RFC 3389 CN injection — forces spectral-flux detection."
+        ),
+    )
     parser.add_argument("--overwrite", action="store_true",
                         help="Regenerate files even if they already exist.")
     return parser.parse_args()
@@ -263,19 +352,20 @@ def main() -> None:
         output_path = output_dir / input_path.name
         if output_path.exists() and not args.overwrite:
             continue
-        row = distort_file(input_path, output_path, args.num_cuts, cut_ms_range)
+        row = distort_file(input_path, output_path, args.num_cuts, cut_ms_range,
+                           fill_mode=args.fill_mode)
         rows.append(row)
         print(
             f"Wrote {output_path.name}  "
             f"speech={row['speech_sec']:.1f}s/{row['duration_sec']:.1f}s  "
-            f"regions={row['speech_regions']}  cuts={row['num_cuts']}"
+            f"regions={row['speech_regions']}  cuts={row['num_cuts']}  "
+            f"fill={row['fill_mode']}"
         )
 
+    fieldnames = ["filename", "duration_sec", "speech_sec", "speech_regions",
+                  "sample_rate", "num_cuts", "fill_mode", "cuts"]
     with manifest_path.open("w", newline="") as f:
-        writer = csv.DictWriter(
-            f, fieldnames=["filename", "duration_sec", "speech_sec",
-                           "speech_regions", "sample_rate", "num_cuts", "cuts"]
-        )
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
 

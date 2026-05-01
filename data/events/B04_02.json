@@ -1,0 +1,21 @@
+{
+  "output": "B04_02.wav",
+  "events": [
+    {
+      "start_sec": 2.1861,
+      "end_sec": 2.3544
+    },
+    {
+      "start_sec": 8.3,
+      "end_sec": 8.4
+    },
+    {
+      "start_sec": 14.5759,
+      "end_sec": 14.6116
+    },
+    {
+      "start_sec": 17.0765,
+      "end_sec": 17.262
+    }
+  ]
+}
