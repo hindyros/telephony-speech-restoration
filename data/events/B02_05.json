@@ -2,10 +2,6 @@
   "output": "B02_05.wav",
   "events": [
     {
-      "start_sec": 0.3949,
-      "end_sec": 0.4133
-    },
-    {
       "start_sec": 1.9444,
       "end_sec": 1.9989
     },
@@ -18,20 +14,8 @@
       "end_sec": 8.1753
     },
     {
-      "start_sec": 9.5346,
-      "end_sec": 9.5526
-    },
-    {
-      "start_sec": 10.92,
-      "end_sec": 11.02
-    },
-    {
       "start_sec": 11.4093,
       "end_sec": 11.5864
-    },
-    {
-      "start_sec": 12.8,
-      "end_sec": 12.9003
     }
   ]
 }

@@ -2,16 +2,8 @@
   "output": "B07_01.wav",
   "events": [
     {
-      "start_sec": 4.1,
-      "end_sec": 4.2366
-    },
-    {
       "start_sec": 5.9474,
       "end_sec": 6.0527
-    },
-    {
-      "start_sec": 6.38,
-      "end_sec": 6.4861
     },
     {
       "start_sec": 7.1935,
@@ -24,10 +16,6 @@
     {
       "start_sec": 8.3536,
       "end_sec": 8.5292
-    },
-    {
-      "start_sec": 9.66,
-      "end_sec": 9.7828
     }
   ]
 }

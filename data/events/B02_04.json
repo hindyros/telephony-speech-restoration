@@ -2,24 +2,16 @@
   "output": "B02_04.wav",
   "events": [
     {
-      "start_sec": 4.5224,
-      "end_sec": 4.5246
-    },
-    {
       "start_sec": 7.3371,
       "end_sec": 7.4757
-    },
-    {
-      "start_sec": 7.8105,
-      "end_sec": 7.8502
     },
     {
       "start_sec": 8.1395,
       "end_sec": 8.1956
     },
     {
-      "start_sec": 12.3488,
-      "end_sec": 12.3512
+      "start_sec": 10.0017,
+      "end_sec": 10.0938
     },
     {
       "start_sec": 12.9158,

@@ -2,10 +2,6 @@
   "output": "B08_03.wav",
   "events": [
     {
-      "start_sec": 0.96,
-      "end_sec": 1.06
-    },
-    {
       "start_sec": 1.855,
       "end_sec": 1.8759
     },
@@ -20,14 +16,6 @@
     {
       "start_sec": 9.2824,
       "end_sec": 9.4504
-    },
-    {
-      "start_sec": 10.48,
-      "end_sec": 10.6274
-    },
-    {
-      "start_sec": 11.0314,
-      "end_sec": 11.0336
     }
   ]
 }

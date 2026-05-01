@@ -2,72 +2,20 @@
   "output": "B06_03.wav",
   "events": [
     {
-      "start_sec": 0.66,
-      "end_sec": 0.76
-    },
-    {
-      "start_sec": 1.18,
-      "end_sec": 1.28
-    },
-    {
       "start_sec": 1.4457,
+      "end_sec": 1.5223
+    },
+    {
+      "start_sec": 1.4785,
       "end_sec": 1.6533
-    },
-    {
-      "start_sec": 2.02,
-      "end_sec": 2.12
-    },
-    {
-      "start_sec": 2.3999,
-      "end_sec": 2.5
-    },
-    {
-      "start_sec": 2.9,
-      "end_sec": 3.0
-    },
-    {
-      "start_sec": 4.56,
-      "end_sec": 4.66
     },
     {
       "start_sec": 5.7248,
       "end_sec": 5.8615
     },
     {
-      "start_sec": 10.0,
-      "end_sec": 10.1
-    },
-    {
       "start_sec": 13.5786,
       "end_sec": 13.6497
-    },
-    {
-      "start_sec": 14.72,
-      "end_sec": 14.82
-    },
-    {
-      "start_sec": 15.44,
-      "end_sec": 15.54
-    },
-    {
-      "start_sec": 15.94,
-      "end_sec": 16.04
-    },
-    {
-      "start_sec": 16.34,
-      "end_sec": 16.44
-    },
-    {
-      "start_sec": 16.9,
-      "end_sec": 17.0
-    },
-    {
-      "start_sec": 20.54,
-      "end_sec": 20.64
-    },
-    {
-      "start_sec": 21.68,
-      "end_sec": 21.78
     }
   ]
 }
