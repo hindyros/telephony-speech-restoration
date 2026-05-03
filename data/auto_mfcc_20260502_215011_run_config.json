@@ -1,0 +1,8 @@
+{
+  "run_tag": "auto_mfcc",
+  "timestamp": "20260502_215011",
+  "notebook_version": "v5.0",
+  "events_source": "mfcc",
+  "asr_model": "whisper-base",
+  "llm_correction": true
+}

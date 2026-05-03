@@ -1,0 +1,8 @@
+{
+  "run_tag": "auto_wavlm_rms",
+  "timestamp": "20260502_221929",
+  "notebook_version": "v5.0",
+  "events_source": "wavlm+rms",
+  "asr_model": "whisper-base",
+  "llm_correction": true
+}

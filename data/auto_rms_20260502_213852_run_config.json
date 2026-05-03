@@ -1,0 +1,8 @@
+{
+  "run_tag": "auto_rms",
+  "timestamp": "20260502_213852",
+  "notebook_version": "v5.0",
+  "events_source": "rms",
+  "asr_model": "whisper-base",
+  "llm_correction": true
+}

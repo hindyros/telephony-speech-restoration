@@ -1,0 +1,14 @@
+{
+  "run_tag": "auto_rms_mfcc",
+  "timestamp": "20260502_221743",
+  "events_source": "both",
+  "iou_threshold": 0.3,
+  "aggregate": {
+    "n_gt": 160,
+    "n_detected": 147,
+    "n_matched": 70,
+    "recall": 0.4375,
+    "precision": 0.47619047619047616,
+    "mean_iou": 0.5497680908623721
+  }
+}

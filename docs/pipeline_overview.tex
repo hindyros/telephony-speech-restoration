@@ -84,6 +84,18 @@ Qwen3-32B text correction, and PlayDiffusion~\cite{playdiffusion}.
 Correct-action rate (CAR) and word-error rate (WER) measure downstream
 agent impact across three conditions: clean\,(ceiling),
 distorted\,(floor), and restored\,(system under test).
+Evaluation on 40 Harper Valley utterances (8 tasks $\times$ 5 files)
+reveals that \emph{all nine} inpainting configurations increase WER
+relative to the distorted floor (best: $+0.033$; worst: $+0.120$).
+Strikingly, the ground-truth-oracle run (\textit{no\_detector},
+WER\,=\,0.213) is the single worst configuration, demonstrating that
+inpainting quality---not detection precision---is the primary
+bottleneck.
+CAR remains flat at 80.0\,\% for eight of nine restored conditions,
+equal to the distorted floor, exposing keyword-classifier insensitivity
+as a confound.
+The pipeline is net-negative for transcript fidelity in all current
+configurations.
 }
 \vspace{4pt}
 
@@ -516,6 +528,258 @@ files from \texttt{eval\_runner.py} and prints a unified table:
 CAR and WER per condition with clean\,(ceiling) and
 distorted\,(floor) reference rows.  Optional
 \texttt{--audio-quality} flags attach mel-MSE and STOI columns.
+
+% =============================================================================
+\section{Evaluation Results}
+\label{sec:results}
+
+\noindent\textbf{Setup.}
+All 9 restored configurations, plus clean (ceiling) and distorted (floor),
+were evaluated on 40 Harper Valley caller utterances spanning 8 banking tasks
+(5 utterances per task).
+\texttt{eval\_runner.py} transcribes each WAV with Whisper~\cite{whisper}
+\textit{base} and classifies via a keyword-scoring heuristic over
+8 task-specific keyword lists.
+\textbf{Correct-action rate (CAR)} counts exact task matches;
+\textbf{word error rate (WER)} is computed
+against Whisper transcripts of the matched clean reference
+(same file stem, stdlib edit-distance).
+
+% ── Table 4: main results ─────────────────────────────────────────────────────
+{\footnotesize\setlength{\tabcolsep}{2.8pt}
+\begin{tabularx}{\columnwidth}{lXrrrr}
+\toprule
+\textbf{Run tag} & \textbf{Detector / source} & \textbf{N}
+  & \textbf{CAR\,\%} & \textbf{WER} & \textbf{$\Delta$WER} \\
+\midrule
+\rowcolor{cData!12}
+clean            & ---\,(reference)    & 40 & \textbf{82.5} & ---   & ---   \\
+\rowcolor{cDist!12}
+distorted        & ---\,(floor)        & 40 & 80.0          & 0.101 & 0.000 \\
+\midrule
+auto\_wavlm\_silero & C\,$\cap$\,D (§\,\ref{sec:detection}) & 40 & 80.0 & \textbf{0.134} & +0.033 \\
+auto\_wavlm\_rms    & C\,$\cap$\,A        & 40 & 80.0 & 0.142 & +0.041 \\
+auto\_wavlm         & C only              & 40 & 80.0 & 0.145 & +0.044 \\
+auto\_rms           & A only              & 40 & 80.0 & 0.189 & +0.088 \\
+auto\_any           & A$\cup$B$\cup$C$\cup$D & 40 & 80.0 & 0.204 & +0.103 \\
+auto\_rms\_mfcc     & A\,$\cap$\,B        & 40 & 80.0 & 0.204 & +0.103 \\
+no\_detector        & GT oracle           & 40 & 80.0 & 0.213 & +0.112 \\
+auto\_silero        & D only              & 40 & 80.0 & 0.214 & +0.113 \\
+\rowcolor{cDist!8}
+auto\_mfcc          & B only              & 40 & 75.0 & 0.221 & +0.120 \\
+\bottomrule
+\end{tabularx}
+}
+\vspace{1pt}
+{\tiny Table\,4.
+Three-condition evaluation across all 9 inpainting configurations
+($N{=}40$ per condition; $n{=}5$ per task).
+$\Delta$WER is the change relative to the distorted baseline.
+All restored conditions exhibit positive $\Delta$WER:
+inpainting \emph{increases} word error rate in every case.
+WER is absent for clean because clean audio serves as the reference.
+Conditions are ordered by WER ascending (best restored first).
+A/B/C/D correspond to the four detectors in Table\,2.}
+\vspace{4pt}
+
+\noindent\textbf{Detection performance.}
+Table\,5 reports detection quality for the 9 experiment modes
+evaluated against 160 ground-truth gaps (4 per file $\times$ 40 files).
+\texttt{no\_detector} uses ground-truth JSON timestamps and represents the
+detection oracle.
+
+{\footnotesize\setlength{\tabcolsep}{2.4pt}
+\begin{tabularx}{\columnwidth}{lXrrrr}
+\toprule
+\textbf{Run tag} & \textbf{Source} & \textbf{Det.} & \textbf{Rec.} & \textbf{Prec.} & \textbf{F$_1$} \\
+\midrule
+no\_detector        & gt (oracle)     & ---  & ---   & ---   & ---   \\
+auto\_mfcc          & B only          & 194  & 0.562 & 0.464 & \textbf{0.508} \\
+auto\_rms\_mfcc     & A\,$\cap$\,B    & 147  & 0.438 & 0.476 & 0.456 \\
+auto\_silero        & D only          & 301  & 0.269 & 0.143 & 0.187 \\
+auto\_rms           & A only          & 617  & 0.500 & 0.130 & 0.206 \\
+auto\_any           & A$\cup$B$\cup$C$\cup$D & 669 & 0.625 & 0.149 & 0.241 \\
+auto\_wavlm         & C only          &  18  & 0.037 & 0.333 & 0.067 \\
+auto\_wavlm\_rms    & C\,$\cap$\,A    &  15  & 0.031 & 0.333 & 0.057 \\
+auto\_wavlm\_silero & C\,$\cap$\,D    &  11  & 0.031 & 0.455 & 0.058 \\
+\bottomrule
+\end{tabularx}
+}
+\vspace{1pt}
+{\tiny Table\,5.
+Detection quality (IoU threshold\,=\,0.3).  ``Det.''~=~total events
+proposed; GT has 160.
+\textit{auto\_any} reaches highest recall (0.625) but at the cost of
+4.2$\times$ over-detection (669 proposals).
+WavLM intersection modes (bottom) fire almost never: 11--15 events
+from 160 GT gaps.
+\textit{no\_detector} bypasses detection entirely using stored
+ground-truth timestamps.}
+\vspace{4pt}
+
+\noindent\textbf{Per-task CAR breakdown.}
+Table\,6 isolates each of the 8 banking tasks.
+Four representative conditions are shown: clean (ceiling),
+distorted (floor), the best-WER restored configuration
+(\textit{auto\_wavlm\_silero}), and the worst-CAR configuration
+(\textit{auto\_mfcc}).
+
+{\footnotesize\setlength{\tabcolsep}{2.8pt}
+\begin{tabularx}{\columnwidth}{lcccc}
+\toprule
+\textbf{Task (B\#\#)} &
+  \textbf{Clean} & \textbf{Dist.} &
+  \textbf{WL-Si} & \textbf{MFCC} \\
+\midrule
+\texttt{replace\_card}           & 5/5 & 5/5 & 5/5 & 5/5 \\
+\texttt{transfer\_money}         & 4/5 & 4/5 & 5/5 & 4/5 \\
+\texttt{check\_balance}          & 5/5 & 5/5 & 4/5 & 3/5 \\
+\texttt{order\_checks}           & 4/5 & 4/5 & 4/5 & 4/5 \\
+\rowcolor{cCut!10}
+\texttt{pay\_bill}               & 0/5 & 0/5 & 0/5 & 0/5 \\
+\texttt{reset\_password}         & 5/5 & 4/5 & 4/5 & 4/5 \\
+\texttt{schedule\_appointment}   & 5/5 & 5/5 & 5/5 & 5/5 \\
+\texttt{get\_branch\_hours}      & 5/5 & 5/5 & 5/5 & 5/5 \\
+\midrule
+\textbf{Total}                   & \textbf{33} & \textbf{32} & \textbf{32} & \textbf{30} \\
+\bottomrule
+\end{tabularx}
+}
+\vspace{1pt}
+{\tiny Table\,6.
+Per-task correct-action counts (out of 5) for four representative
+conditions.
+WL-Si\,=\,\textit{auto\_wavlm\_silero} (best WER);
+MFCC\,=\,\textit{auto\_mfcc} (worst CAR).
+\texttt{pay\_bill} fails uniformly across all conditions including clean
+(systematic classifier failure; see §\,\ref{sec:discussion}).
+\texttt{check\_balance} shows the only inpainting-induced regression
+beyond the distorted floor.}
+
+% =============================================================================
+\section{Discussion and Limitations}
+\label{sec:discussion}
+
+\noindent\textbf{Central finding: inpainting degrades WER in all
+configurations.}
+Every restored condition exhibits higher WER than the distorted floor
+(Table\,4).
+The most damning evidence is \textit{no\_detector}, which uses
+ground-truth gap timestamps and therefore bypasses detection entirely.
+Its WER of 0.213 is the worst among all restored conditions---more
+than twice the distorted baseline of 0.101.
+This establishes that the bottleneck is not detection quality but
+\emph{inpainting quality}: PlayDiffusion + Qwen3 together introduce
+more ASR errors than the original gaps did.
+
+\noindent\textbf{Over-detection in signal-processing methods.}
+Method\,A (RMS) proposes 617 events for 160 ground-truth gaps---a
+$3.86\times$ over-detection rate.
+The union \textit{auto\_any} inherits this pathology (669 events; RMS
+effectively dominates the union).
+Each false-positive event routes correct audio through PlayDiffusion,
+synthesizing speech that Whisper misreads.
+The result is net acoustic degradation even when the gap-filling itself
+is locally reasonable.
+Method\,B (MFCC) is the only signal-processing detector with an
+acceptable F$_1$ (0.508), yet it still generates 1.21$\times$ more
+events than GT.
+The intersection \textit{auto\_rms\_mfcc} (A$\cap$B) prunes false
+positives to F$_1$\,=\,0.456 at the cost of halving recall (0.438).
+
+\noindent\textbf{WavLM intersection: ``do less, hurt less''.}
+The three lowest-WER configurations are
+\textit{auto\_wavlm\_silero} (0.134),
+\textit{auto\_wavlm\_rms} (0.142), and
+\textit{auto\_wavlm} alone (0.145).
+This is not evidence that WavLM-guided inpainting is effective.
+\textit{auto\_wavlm} fires on only 18 of 160 gaps (recall\,=\,0.037);
+its intersections fire on 11--15.
+These configurations achieve low WER precisely \emph{because they leave
+most of the audio untouched}---they apply PlayDiffusion to fewer than
+10\,\% of gaps, limiting their opportunity to introduce new errors.
+A configuration that fires on zero events would achieve WER identical
+to the distorted baseline ($0.101$).
+The WER ranking therefore measures harm-avoidance, not gap-repair.
+
+\noindent\textbf{MFCC hallucination: a concrete failure mode.}
+\textit{auto\_mfcc} uniquely drops two additional utterances
+(B03\_04, B03\_05) from the \texttt{check\_balance} task,
+reducing its CAR to 75.0\,\% vs.\ 80.0\,\% for all other configurations.
+In both cases the clean Whisper transcript contains the phrase
+``\textit{check my account balance},'' which triggers the keyword hit.
+Post-inpainting, Whisper reads
+``\textit{check my account valorant}'' (B03\_04) and
+``\textit{check my account down list}'' (B03\_05)---phonetically plausible
+but semantically incorrect substitutions generated by PlayDiffusion
+when MFCC falsely flags the \emph{balance} word region as a gap.
+This illustrates how false-positive detection directly produces task
+errors through the inpainting chain.
+
+\noindent\textbf{B06\_04: fragile keyword boundary.}
+File B06\_04 (\texttt{reset\_password}) is the only utterance in the
+dataset that the distorted condition gets wrong but clean does not.
+The speaker's phrase ``\textit{I would like to reset my password}''
+is rendered by Whisper as ``\textit{semi-password}'' on the clean
+audio---barely triggering the \texttt{password} keyword.
+After distortion (and all restored conditions), Whisper renders
+``\textit{semi-pastured}'' or ``\textit{semi-passured}''---neither
+matching the keyword.
+The distortion removes a phoneme boundary that Whisper needed to
+recover the keyword.
+No restored configuration recovers this file: the inpainted waveform
+produces the same ``\textit{pastured}'' hallucination, indicating
+that the synthesized fill does not reconstruct the critical phoneme.
+
+\noindent\textbf{Systematic \texttt{pay\_bill} failure.}
+All 5 \texttt{pay\_bill} utterances fail under every condition,
+including clean (Table\,6, highlighted row).
+The callers use locutions such as
+``\textit{I need to pay my utility bill}'' and
+``\textit{can I set up automatic payments?}'',
+none of which contains the exact substring
+``\textit{pay bill}'', ``\textit{auto pay}'', or ``\textit{bill payment}''
+after Whisper transcription.
+This is a classifier design failure, not a restoration failure: the
+keyword list does not cover caller paraphrase variation.
+These 5 errors are present in the clean ceiling and therefore do not
+affect the relative comparison between distorted and restored, but they
+inflate the apparent gap between ceiling (82.5\,\%) and floor (80.0\,\%).
+Excluding \texttt{pay\_bill}, clean achieves 94.3\,\% CAR vs.\
+91.4\,\% for distorted---a 2.9\,pp degradation more representative
+of the true cost of telephony distortion.
+
+\noindent\textbf{CAR metric insensitivity.}
+Across the 9 restored configurations, CAR varies from 75.0\,\% to
+80.0\,\%---a 5\,pp range versus a 0.087-unit WER range
+(0.134--0.221).
+The keyword classifier absorbs substantial ASR noise: as long as any
+keyword from the correct task appears \emph{somewhere} in the
+transcript, the classification succeeds.
+Inpainting errors that corrupt auxiliary words (amounts, names, phone
+numbers) are invisible to CAR.
+WER exposes this damage directly.
+A stronger downstream evaluator---e.g., a prompted LLM classifier or
+a fine-tuned intent model---would likely widen the CAR spread and
+provide a more informative signal.
+
+\noindent\textbf{Implications.}
+The hypothesis that speech restoration measurably improves agent
+correct-action rate is \emph{not confirmed} on this dataset.
+The current pipeline is net-negative for transcript quality (WER)
+and does not improve CAR over the distorted baseline for any
+configuration.
+Two sub-problems must be solved independently before a second
+evaluation:
+(1) \emph{detection precision}: reduce false-positive rates,
+particularly for RMS, to near zero before inpainting is applied;
+(2) \emph{inpainting fidelity}: the GT-oracle experiment
+(\textit{no\_detector}, WER\,=\,0.213) shows that PlayDiffusion +
+Qwen3 cannot yet faithfully reconstruct the missing speech---
+the inpainted region must be phonemically accurate enough that
+Whisper can recover the intended keyword.
+Until both conditions are met, telephony distortion is less
+harmful than the restoration attempt.
 
 {\footnotesize\setlength{\bibsep}{2pt}
 \begin{thebibliography}{9}

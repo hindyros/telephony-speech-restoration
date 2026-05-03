@@ -1,0 +1,14 @@
+{
+  "run_tag": "auto_any",
+  "timestamp": "20260502_224308",
+  "events_source": "any",
+  "iou_threshold": 0.3,
+  "aggregate": {
+    "n_gt": 160,
+    "n_detected": 669,
+    "n_matched": 100,
+    "recall": 0.625,
+    "precision": 0.14947683109118087,
+    "mean_iou": 0.517695968727797
+  }
+}

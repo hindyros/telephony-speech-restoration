@@ -1,0 +1,14 @@
+{
+  "run_tag": "auto_rms",
+  "timestamp": "20260502_213852",
+  "events_source": "rms",
+  "iou_threshold": 0.3,
+  "aggregate": {
+    "n_gt": 160,
+    "n_detected": 617,
+    "n_matched": 80,
+    "recall": 0.5,
+    "precision": 0.12965964343598055,
+    "mean_iou": 0.5376016774158554
+  }
+}

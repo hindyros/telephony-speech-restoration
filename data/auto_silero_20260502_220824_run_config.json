@@ -1,0 +1,8 @@
+{
+  "run_tag": "auto_silero",
+  "timestamp": "20260502_220824",
+  "notebook_version": "v5.0",
+  "events_source": "silero",
+  "asr_model": "whisper-base",
+  "llm_correction": true
+}

@@ -8,6 +8,11 @@ __pycache__/
 # PlayDiffusion is cloned by the notebook at runtime — not committed
 notebooks/PlayDiffusion/
 
+# Restored audio (large binary — not committed; see CLAUDE.md)
+data/restored/
+data/restored_*/
+data/restoration_detection_metadata/
+
 # LaTeX build artefacts
 docs/*.aux
 docs/*.log

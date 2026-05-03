@@ -1,0 +1,8 @@
+{
+  "run_tag": "auto_wavlm_silero",
+  "timestamp": "20260502_222102",
+  "notebook_version": "v5.0",
+  "events_source": "wavlm+silero",
+  "asr_model": "whisper-base",
+  "llm_correction": true
+}

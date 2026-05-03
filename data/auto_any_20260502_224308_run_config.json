@@ -1,0 +1,8 @@
+{
+  "run_tag": "auto_any",
+  "timestamp": "20260502_224308",
+  "notebook_version": "v5.0",
+  "events_source": "any",
+  "asr_model": "whisper-base",
+  "llm_correction": true
+}

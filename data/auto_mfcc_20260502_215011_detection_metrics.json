@@ -1,0 +1,14 @@
+{
+  "run_tag": "auto_mfcc",
+  "timestamp": "20260502_215011",
+  "events_source": "mfcc",
+  "iou_threshold": 0.3,
+  "aggregate": {
+    "n_gt": 160,
+    "n_detected": 194,
+    "n_matched": 90,
+    "recall": 0.5625,
+    "precision": 0.4639175257731959,
+    "mean_iou": 0.5249469893319701
+  }
+}

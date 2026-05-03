@@ -1,0 +1,14 @@
+{
+  "run_tag": "auto_wavlm",
+  "timestamp": "20260502_215205",
+  "events_source": "wavlm",
+  "iou_threshold": 0.3,
+  "aggregate": {
+    "n_gt": 160,
+    "n_detected": 18,
+    "n_matched": 6,
+    "recall": 0.0375,
+    "precision": 0.3333333333333333,
+    "mean_iou": 0.484022486772488
+  }
+}
