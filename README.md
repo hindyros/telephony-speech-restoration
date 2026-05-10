@@ -148,7 +148,7 @@ python evals/compare_runs.py results/summary_*.json
 2. Open `AudioInpainting_v5_0.ipynb` → **Runtime → Run All**
 3. **Step 7a** — Detection benchmark: all 4 methods vs ground truth, no inpainting
 4. **Step 9** — Pre-detection: runs all detectors once, caches to `output/detected/`
-5. **Step 10** — Experiment loop: 9 configs × 40 files, saves per-run JSON reports
+5. **Step 9** — Experiment loop: 9 configs × 40 files, saves per-run JSON reports
 6. Download outputs, run `eval_runner.py` per run tag, then `compare_runs.py`
 
 ---
