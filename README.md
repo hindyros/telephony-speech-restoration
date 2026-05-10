@@ -1,4 +1,4 @@
-# Telephony Speech Restoration — v5.0
+# Telephony Speech Restoration 
 
 **Hypothesis:** Blind audio inpainting of telephony packet-loss dropouts measurably improves a banking-task agent's correct-action rate (CAR) compared to unrestored audio.
 
