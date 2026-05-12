@@ -17,8 +17,9 @@ body {
   user-select: none;
 }
 
+/* ── Header ── */
 #header {
-  padding: 14px 28px;
+  padding: 13px 28px;
   border-bottom: 1px solid #0e2040;
   display: flex;
   justify-content: space-between;
@@ -26,38 +27,75 @@ body {
   flex-shrink: 0;
 }
 
-#title {
-  font-size: 12px;
-  letter-spacing: 4px;
-  color: #44aaff;
-  text-transform: uppercase;
+#title      { font-size: 12px; letter-spacing: 4px; color: #44aaff; text-transform: uppercase; }
+#version-tag{ font-size: 10px; letter-spacing: 2px; color: #2a5070; }
+#stage-label{
+  font-size: 11px; letter-spacing: 3px; color: #557799;
+  text-transform: uppercase; transition: color 0.6s;
+  min-width: 280px; text-align: right;
 }
 
-#version-tag {
+/* ── Breadcrumb strip ── */
+#breadcrumb {
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  height: 36px;
+  border-bottom: 1px solid #0e2040;
+  background: #03030a;
+  flex-shrink: 0;
+  gap: 0;
+}
+
+.bc-step {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 14px;
+  height: 100%;
   font-size: 10px;
-  letter-spacing: 2px;
-  color: #2a5070;
-}
-
-#stage-label {
-  font-size: 11px;
-  letter-spacing: 3px;
-  color: #557799;
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  transition: color 0.6s;
-  min-width: 280px;
-  text-align: right;
+  color: #2a4060;
+  border-bottom: 2px solid transparent;
+  transition: color 0.4s, border-color 0.4s;
+  white-space: nowrap;
 }
 
+.bc-num {
+  width: 17px; height: 17px;
+  border-radius: 50%;
+  background: #0a1a2a;
+  color: #2a4060;
+  font-size: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700;
+  transition: background 0.4s, color 0.4s;
+  flex-shrink: 0;
+}
+
+.bc-step.active {
+  color: #44aaff;
+  border-bottom-color: #44aaff;
+}
+.bc-step.active .bc-num { background: #44aaff; color: #05050e; }
+
+.bc-step.done { color: #44ffaa88; }
+.bc-step.done .bc-num { background: #44ffaa30; color: #44ffaa; }
+
+.bc-sep { color: #0e2040; font-size: 14px; padding: 0 2px; }
+
+/* ── Main ── */
 #main {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 16px 28px 12px;
-  gap: 12px;
+  padding: 14px 28px 10px;
+  gap: 10px;
   min-height: 0;
 }
 
+/* ── Scope ── */
 #scope-wrap {
   flex: 1;
   position: relative;
@@ -68,81 +106,52 @@ body {
   min-height: 0;
 }
 
-canvas#scope {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
+canvas#scope { display: block; width: 100%; height: 100%; }
 
-#scope-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
+#scope-overlay { position: absolute; inset: 0; pointer-events: none; }
 
 #warning-banner {
-  position: absolute;
-  top: 0; left: 0; right: 0;
+  position: absolute; top: 0; left: 0; right: 0;
   background: #3a000010;
   border-bottom: 1px solid #ff333360;
   color: #ff5555;
-  text-align: center;
-  font-size: 10px;
-  letter-spacing: 3px;
-  padding: 5px;
-  opacity: 0;
-  transition: opacity 0.4s;
+  text-align: center; font-size: 10px; letter-spacing: 3px;
+  padding: 5px; opacity: 0; transition: opacity 0.4s;
   text-transform: uppercase;
 }
 
 #success-banner {
-  position: absolute;
-  top: 0; left: 0; right: 0;
+  position: absolute; top: 0; left: 0; right: 0;
   background: #001a0e10;
   border-bottom: 1px solid #00cc5560;
   color: #00dd77;
-  text-align: center;
-  font-size: 10px;
-  letter-spacing: 3px;
-  padding: 5px;
-  opacity: 0;
-  transition: opacity 0.4s;
+  text-align: center; font-size: 10px; letter-spacing: 3px;
+  padding: 5px; opacity: 0; transition: opacity 0.4s;
   text-transform: uppercase;
 }
 
 #det-legend {
-  position: absolute;
-  top: 24px;
-  right: 14px;
-  opacity: 0;
-  transition: opacity 0.5s;
+  position: absolute; top: 24px; right: 14px;
+  opacity: 0; transition: opacity 0.5s;
 }
 
 .det-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 5px;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: #7799bb;
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 5px; font-size: 10px; letter-spacing: 1px; color: #7799bb;
 }
 
-.det-swatch {
-  width: 18px;
-  height: 2px;
-  border-radius: 1px;
-}
+.det-swatch { width: 18px; height: 2px; border-radius: 1px; }
 
+/* ── Lower panels ── */
 #lower {
   display: flex;
-  gap: 12px;
-  height: 150px;
-  flex-shrink: 0;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
 }
 
 #transcript-panel {
-  flex: 2.2;
+  flex: 1.6;
   border: 1px solid #0e2040;
   border-radius: 3px;
   padding: 10px 16px 12px;
@@ -156,7 +165,18 @@ canvas#scope {
   flex: 1;
   border: 1px solid #0e2040;
   border-radius: 3px;
-  padding: 10px 16px 12px;
+  padding: 10px 14px 10px;
+  background: #020208;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#pipeline-panel {
+  flex: 1;
+  border: 1px solid #0e2040;
+  border-radius: 3px;
+  padding: 10px 14px 10px;
   background: #020208;
   display: flex;
   flex-direction: column;
@@ -168,20 +188,19 @@ canvas#scope {
   color: #2a5070;
   margin-bottom: 8px;
   text-transform: uppercase;
+  flex-shrink: 0;
 }
 
+/* ── Transcript ── */
 #transcript-words {
   font-family: Georgia, serif;
-  font-size: 19px;
+  font-size: 18px;
   line-height: 1.7;
   color: #b8d0e8;
   flex: 1;
 }
 
-.w {
-  display: inline;
-  transition: color 0.4s, opacity 0.4s, background 0.4s;
-}
+.w { display: inline; transition: color 0.4s, opacity 0.4s, background 0.4s; }
 
 .w.gap {
   background: #2a00001a;
@@ -189,109 +208,137 @@ canvas#scope {
   border-radius: 3px;
   color: #ff444470;
   font-family: 'Courier New', monospace;
-  font-size: 13px;
+  font-size: 12px;
   padding: 0 4px;
   letter-spacing: 0;
 }
 
-.w.restoring {
-  color: #44aaff;
-  animation: blink 0.5s ease-in-out infinite alternate;
-}
-
-.w.restored { color: #44ffaa; }
+.w.restoring { color: #44aaff; animation: blink 0.5s ease-in-out infinite alternate; }
+.w.restored  { color: #44ffaa; }
 
 @keyframes blink { from { opacity: 0.3; } to { opacity: 1; } }
 
+/* ── Agent panel ── */
 #action-box {
   border-radius: 3px;
-  padding: 9px 12px;
+  padding: 8px 10px;
   display: flex;
   align-items: center;
   gap: 10px;
   transition: background 0.5s, border-color 0.5s;
   background: #0a0a18;
   border: 1px solid #0e2040;
-  flex: 1;
-  margin-top: 6px;
+  flex-shrink: 0;
 }
 
-#action-icon { font-size: 22px; transition: all 0.4s; }
+#action-icon { font-size: 20px; transition: all 0.4s; }
 #action-text { font-size: 13px; letter-spacing: 1px; }
-#action-sub  { font-size: 10px; color: #446688; margin-top: 2px; letter-spacing: 1px; }
+#action-sub  { font-size: 10px; color: #446688; margin-top: 1px; letter-spacing: 1px; }
 
 #action-box.ok  { background:#062012; border-color:#00cc5580; }
 #action-box.bad { background:#1a0404; border-color:#cc222280; }
 
+/* ── Metrics ── */
 #metrics-row {
   display: flex;
-  gap: 14px;
-  margin-top: 8px;
-  opacity: 0;
+  gap: 0;
+  border: 1px solid #0e2040;
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+  opacity: 0.25;
   transition: opacity 0.6s;
 }
 
+#metrics-row.lit { opacity: 1; }
+
 .met {
-  font-size: 10px;
-  color: #335566;
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 9px;
   letter-spacing: 1px;
+  color: #335566;
+  border-right: 1px solid #0e2040;
+  text-transform: uppercase;
+}
+.met:last-child { border-right: none; }
+.met span { display: block; font-size: 14px; color: #7099bb; margin-top: 2px; letter-spacing: 0; }
+.met span.good { color: #44ffaa; }
+.met span.bad  { color: #ff6666; }
+
+/* ── Pipeline panel ── */
+#pip-steps {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-.met span {
-  display: block;
-  font-size: 15px;
-  color: #7099bb;
-  margin-top: 2px;
-  letter-spacing: 0;
+.pip-step {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: #2a4060;
+  padding: 3px 0;
+  transition: color 0.4s;
 }
 
+.pip-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #0e2040;
+  flex-shrink: 0;
+  transition: background 0.4s, box-shadow 0.4s;
+}
+
+.pip-step.active  { color: #44aaff; }
+.pip-step.active .pip-dot  { background: #44aaff; box-shadow: 0 0 6px #44aaff; }
+.pip-step.done    { color: #44ffaa88; }
+.pip-step.done   .pip-dot  { background: #44ffaa; }
+.pip-step.error   { color: #ff6666; }
+.pip-step.error  .pip-dot  { background: #ff4444; }
+
+.pip-label { flex: 1; }
+.pip-sub   { font-size: 9px; color: #2a4060; transition: color 0.4s; margin-top: 1px; }
+.pip-step.active  .pip-sub { color: #44aaff80; }
+.pip-step.done    .pip-sub { color: #44ffaa40; }
+
+/* ── Footer ── */
 #footer {
-  padding: 8px 28px;
+  padding: 7px 28px;
   display: flex;
   align-items: center;
   gap: 16px;
   flex-shrink: 0;
+  border-top: 1px solid #0a1a2a;
 }
 
 #progress-track {
-  flex: 1;
-  height: 3px;
-  background: #0a1a2a;
-  border-radius: 2px;
-  overflow: hidden;
+  flex: 1; height: 3px;
+  background: #0a1a2a; border-radius: 2px; overflow: hidden;
 }
 
 #progress-fill {
   height: 100%;
   background: linear-gradient(90deg, #1466cc, #44aaff);
-  width: 0%;
-  transition: width 0.15s linear;
+  width: 0%; transition: width 0.15s linear;
 }
 
-#stage-dots {
-  display: flex;
-  gap: 7px;
-}
+#stage-dots { display: flex; gap: 7px; }
 
 .sdot {
   width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #0e2040;
-  transition: background 0.3s;
+  border-radius: 50%; background: #0e2040; transition: background 0.3s;
 }
 .sdot.active { background: #44aaff; }
 
 #replay-btn {
   font-family: 'Courier New', monospace;
-  font-size: 10px;
-  letter-spacing: 2px;
-  color: #335566;
-  background: none;
-  border: 1px solid #0e2040;
-  border-radius: 2px;
-  padding: 4px 10px;
-  cursor: pointer;
-  text-transform: uppercase;
+  font-size: 10px; letter-spacing: 2px; color: #335566;
+  background: none; border: 1px solid #0e2040; border-radius: 2px;
+  padding: 4px 10px; cursor: pointer; text-transform: uppercase;
   transition: color 0.2s, border-color 0.2s;
 }
 #replay-btn:hover { color: #44aaff; border-color: #44aaff60; }
@@ -299,13 +346,29 @@ canvas#scope {
 </head>
 <body>
 
+<!-- Header -->
 <div id="header">
   <div id="title">Telephony Speech Restoration</div>
   <div id="stage-label">INITIALIZING</div>
-  <div id="version-tag">MIT MBAn GenAI Lab &nbsp;·&nbsp; v5.0</div>
 </div>
 
+<!-- Breadcrumb -->
+<div id="breadcrumb">
+  <div class="bc-step active" id="bc-1"><div class="bc-num">1</div>Clean Signal</div>
+  <div class="bc-sep">›</div>
+  <div class="bc-step" id="bc-2"><div class="bc-num">2</div>Packet Loss</div>
+  <div class="bc-sep">›</div>
+  <div class="bc-step" id="bc-3"><div class="bc-num">3</div>Detection</div>
+  <div class="bc-sep">›</div>
+  <div class="bc-step" id="bc-4"><div class="bc-num">4</div>Inpainting</div>
+  <div class="bc-sep">›</div>
+  <div class="bc-step" id="bc-5"><div class="bc-num">5</div>Restored</div>
+</div>
+
+<!-- Main -->
 <div id="main">
+
+  <!-- Scope -->
   <div id="scope-wrap">
     <canvas id="scope"></canvas>
     <div id="scope-overlay">
@@ -320,14 +383,19 @@ canvas#scope {
     </div>
   </div>
 
+  <!-- Lower panels -->
   <div id="lower">
+
+    <!-- Transcript -->
     <div id="transcript-panel">
-      <div class="panel-tag">Transcript &nbsp;· &nbsp;Caller B03</div>
+      <div class="panel-tag">Live Transcript &nbsp;·&nbsp; Caller B03</div>
       <div id="transcript-words"></div>
     </div>
+
+    <!-- Agent classification -->
     <div id="agent-panel">
       <div class="panel-tag">Agent Classification</div>
-      <div id="action-box" class="">
+      <div id="action-box">
         <div id="action-icon">◈</div>
         <div>
           <div id="action-text">AWAITING SIGNAL</div>
@@ -335,14 +403,43 @@ canvas#scope {
         </div>
       </div>
       <div id="metrics-row">
-        <div class="met">WER FLOOR<span id="met-wer">0.101</span></div>
+        <div class="met">WER FLOOR<span class="bad" id="met-wer">0.101</span></div>
         <div class="met">WER RESTORED<span id="met-wer2">0.134</span></div>
-        <div class="met">CAR<span id="met-car">80 %</span></div>
+        <div class="met">CAR FLOOR<span id="met-car">80.0 %</span></div>
       </div>
     </div>
+
+    <!-- Pipeline -->
+    <div id="pipeline-panel">
+      <div class="panel-tag">Restoration Pipeline</div>
+      <div id="pip-steps">
+        <div class="pip-step" id="pip-1">
+          <div class="pip-dot"></div>
+          <div><div class="pip-label">VAD-aware distortion</div><div class="pip-sub">SHA256-seeded · 4 cuts/file</div></div>
+        </div>
+        <div class="pip-step" id="pip-2">
+          <div class="pip-dot"></div>
+          <div><div class="pip-label">Blind detection</div><div class="pip-sub">RMS · MFCC · WavLM · Silero VAD</div></div>
+        </div>
+        <div class="pip-step" id="pip-3">
+          <div class="pip-dot"></div>
+          <div><div class="pip-label">ASR + LLM correction</div><div class="pip-sub">Qwen3-ASR · Qwen3-32B via OpenRouter</div></div>
+        </div>
+        <div class="pip-step" id="pip-4">
+          <div class="pip-dot"></div>
+          <div><div class="pip-label">PlayDiffusion inpainting</div><div class="pip-sub">crossfade · text-diff · InpaintInput</div></div>
+        </div>
+        <div class="pip-step" id="pip-5">
+          <div class="pip-dot"></div>
+          <div><div class="pip-label">Agent re-classification</div><div class="pip-sub">Whisper ASR · keyword scorer</div></div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
+<!-- Footer -->
 <div id="footer">
   <button id="replay-btn">↺ Replay</button>
   <div id="progress-track"><div id="progress-fill"></div></div>
@@ -368,8 +465,8 @@ function prng(seed) {
 }
 
 // ── Waveform generation ────────────────────────────────────────────────────────
-const DURATION  = 5.5;
-const DROPOUT   = { start: 1.92, end: 3.38 };
+const DURATION = 5.5;
+const DROPOUT  = { start: 1.92, end: 3.38 };
 
 const WORD_REGIONS = [
   { s:0.30, e:0.50, w:"I",       amp:0.55 },
@@ -382,21 +479,18 @@ const WORD_REGIONS = [
   { s:3.40, e:3.68, w:"please",  amp:0.70 },
 ];
 
-function buildWave(w) {
-  const rng = prng(0xdeadbeef);
+function buildWave(w, seed=0xdeadbeef) {
+  const rng = prng(seed);
   const y = new Float32Array(w);
   for (let x = 0; x < w; x++) {
     const t = (x / w) * DURATION;
-    let v = 0;
-    let inWord = null;
+    let v = 0, inWord = null;
     for (const r of WORD_REGIONS) {
       if (t >= r.s && t <= r.e) { inWord = r; break; }
     }
     if (inWord) {
       const local = (t - inWord.s) / (inWord.e - inWord.s);
-      let env = local < 0.08 ? local / 0.08
-              : local > 0.88 ? (1 - local) / 0.12
-              : 1.0;
+      let env = local < 0.08 ? local / 0.08 : local > 0.88 ? (1 - local) / 0.12 : 1.0;
       env *= inWord.amp;
       v = env * (
         Math.sin(2 * Math.PI * 4.1  * t) * 0.46 +
@@ -404,38 +498,6 @@ function buildWave(w) {
         Math.sin(2 * Math.PI * 17.7 * t) * 0.14 +
         Math.sin(2 * Math.PI * 28.2 * t) * 0.07 +
         (rng() - 0.5) * 0.28
-      );
-    } else {
-      v = (rng() - 0.5) * 0.04;
-    }
-    y[x] = v;
-  }
-  return y;
-}
-
-// Restored waveform (slightly different harmonic content to show it was synthesized)
-function buildRestoredWave(w) {
-  const rng = prng(0xaabbccdd);
-  const y = new Float32Array(w);
-  for (let x = 0; x < w; x++) {
-    const t = (x / w) * DURATION;
-    let v = 0;
-    let inWord = null;
-    for (const r of WORD_REGIONS) {
-      if (t >= r.s && t <= r.e) { inWord = r; break; }
-    }
-    if (inWord) {
-      const local = (t - inWord.s) / (inWord.e - inWord.s);
-      let env = local < 0.08 ? local / 0.08
-              : local > 0.88 ? (1 - local) / 0.12
-              : 1.0;
-      env *= inWord.amp;
-      v = env * (
-        Math.sin(2 * Math.PI * 4.3  * t + 0.2) * 0.44 +
-        Math.sin(2 * Math.PI * 8.9  * t + 0.1) * 0.28 +
-        Math.sin(2 * Math.PI * 16.5 * t + 0.3) * 0.15 +
-        Math.sin(2 * Math.PI * 27.0 * t + 0.4) * 0.08 +
-        (rng() - 0.5) * 0.22
       );
     } else {
       v = (rng() - 0.5) * 0.04;
@@ -456,8 +518,8 @@ function resize() {
   H = Math.floor(rect.height);
   canvas.width  = W;
   canvas.height = H;
-  waveClean    = buildWave(W);
-  waveRestored = buildRestoredWave(W);
+  waveClean    = buildWave(W, 0xdeadbeef);
+  waveRestored = buildWave(W, 0xaabbccdd);
 }
 window.addEventListener('resize', resize);
 resize();
@@ -466,30 +528,17 @@ resize();
 function drawGrid() {
   ctx.strokeStyle = '#0a1a2a';
   ctx.lineWidth = 1;
-  // horizontal center line
-  ctx.beginPath();
-  ctx.moveTo(0, H / 2);
-  ctx.lineTo(W, H / 2);
-  ctx.stroke();
-  // amplitude guides
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
   [0.25, 0.75].forEach(f => {
-    ctx.beginPath();
-    ctx.setLineDash([4, 8]);
-    ctx.moveTo(0, H * f);
-    ctx.lineTo(W, H * f);
-    ctx.stroke();
+    ctx.beginPath(); ctx.setLineDash([4,8]);
+    ctx.moveTo(0, H*f); ctx.lineTo(W, H*f); ctx.stroke();
     ctx.setLineDash([]);
   });
-  // time markers (every 0.5s)
   for (let t = 0.5; t < DURATION; t += 0.5) {
     const x = (t / DURATION) * W;
-    ctx.beginPath();
-    ctx.strokeStyle = '#0a1a2a';
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, H);
-    ctx.stroke();
-    ctx.fillStyle = '#1a3050';
-    ctx.font = '9px Courier New';
+    ctx.beginPath(); ctx.strokeStyle = '#0a1a2a';
+    ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+    ctx.fillStyle = '#1a3050'; ctx.font = '9px Courier New';
     ctx.fillText(t.toFixed(1) + 's', x + 3, H - 6);
   }
 }
@@ -504,8 +553,8 @@ function drawWaveSegment(wave, xStart, xEnd, color, alpha=1.0, ampScale=1.0) {
   ctx.beginPath();
   let started = false;
   for (let x = xStart; x <= xEnd; x++) {
-    const v = (wave[x] || 0) * ampScale;
-    const cy = H / 2 - v * (H * 0.42);
+    const v  = (wave[x] || 0) * ampScale;
+    const cy = H/2 - v * (H * 0.42);
     if (!started) { ctx.moveTo(x, cy); started = true; }
     else           { ctx.lineTo(x, cy); }
   }
@@ -524,150 +573,103 @@ function drawDropoutZone(alpha=0.9) {
   const { x0, x1 } = dropoutPixels();
   ctx.save();
   ctx.globalAlpha = alpha;
-  ctx.fillStyle = '#ff000008';
-  ctx.fillRect(x0, 0, x1 - x0, H);
-  ctx.strokeStyle = '#ff444430';
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4, 6]);
+  ctx.fillStyle = '#ff000008'; ctx.fillRect(x0, 0, x1-x0, H);
+  ctx.strokeStyle = '#ff444430'; ctx.lineWidth = 1;
+  ctx.setLineDash([4,6]);
   ctx.beginPath(); ctx.moveTo(x0, 0); ctx.lineTo(x0, H); ctx.stroke();
   ctx.beginPath(); ctx.moveTo(x1, 0); ctx.lineTo(x1, H); ctx.stroke();
   ctx.setLineDash([]);
-  // flat line in gap
-  ctx.strokeStyle = '#ff333350';
-  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = '#ff333350'; ctx.lineWidth = 1.5;
   ctx.shadowColor = '#ff3333'; ctx.shadowBlur = 4;
-  ctx.beginPath();
-  ctx.moveTo(x0, H / 2);
-  ctx.lineTo(x1, H / 2);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0, H/2); ctx.lineTo(x1, H/2); ctx.stroke();
   ctx.restore();
 }
 
-// ── Scanner beam state ─────────────────────────────────────────────────────────
+// ── Scanner beams ──────────────────────────────────────────────────────────────
 const DETECTORS = [
-  { id:'rms',    label:'RMS',    color:'#ff4444' },
-  { id:'mfcc',   label:'MFCC',  color:'#ffaa44' },
-  { id:'wavlm',  label:'WavLM', color:'#4488ff' },
-  { id:'silero', label:'Silero',color:'#cc44ff' },
+  { id:'rms',    label:'A · RMS',    color:'#ff4444' },
+  { id:'mfcc',   label:'B · MFCC',  color:'#ffaa44' },
+  { id:'wavlm',  label:'C · WavLM', color:'#4488ff' },
+  { id:'silero', label:'D · Silero', color:'#cc44ff' },
 ];
-let scannerState = null;  // { beamX, phase, detectorIdx, markers[] }
+let scannerState = null;
 
 function drawScanners() {
   if (!scannerState) return;
   const { beamX, detectorIdx, markers } = scannerState;
 
-  // Draw all confirmed markers (previous detectors)
   markers.forEach(m => {
     ctx.save();
-    ctx.globalAlpha = 0.6;
-    ctx.fillStyle = m.color + '20';
-    ctx.fillRect(m.x0, 0, m.x1 - m.x0, H);
-    // top tick marks
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = m.color + '18';
+    ctx.fillRect(m.x0, 0, m.x1-m.x0, H);
     ctx.fillStyle = m.color;
-    ctx.fillRect(m.x0 - 2, 0, 4, 12);
-    ctx.fillRect(m.x1 - 2, 0, 4, 12);
+    ctx.fillRect(m.x0-2, 0, 4, 10);
+    ctx.fillRect(m.x1-2, 0, 4, 10);
     ctx.restore();
   });
 
-  // Draw active beam
   if (detectorIdx < DETECTORS.length && beamX >= 0) {
     const det = DETECTORS[detectorIdx];
     ctx.save();
-    ctx.globalAlpha = 0.9;
-    // beam glow
-    const grad = ctx.createLinearGradient(beamX - 20, 0, beamX + 3, 0);
-    grad.addColorStop(0, det.color + '00');
-    grad.addColorStop(1, det.color + 'cc');
+    const grad = ctx.createLinearGradient(beamX-22, 0, beamX+3, 0);
+    grad.addColorStop(0, det.color+'00');
+    grad.addColorStop(1, det.color+'cc');
     ctx.fillStyle = grad;
-    ctx.fillRect(beamX - 20, 0, 23, H);
-    // beam line
-    ctx.strokeStyle = det.color;
-    ctx.lineWidth = 2;
-    ctx.shadowColor = det.color;
-    ctx.shadowBlur = 10;
-    ctx.beginPath();
-    ctx.moveTo(beamX, 0);
-    ctx.lineTo(beamX, H);
-    ctx.stroke();
-    // label
-    ctx.font = '9px Courier New';
-    ctx.fillStyle = det.color;
-    ctx.fillText(det.label, beamX + 5, 16);
+    ctx.fillRect(beamX-22, 0, 25, H);
+    ctx.strokeStyle = det.color; ctx.lineWidth = 2;
+    ctx.shadowColor = det.color; ctx.shadowBlur = 10;
+    ctx.beginPath(); ctx.moveTo(beamX, 0); ctx.lineTo(beamX, H); ctx.stroke();
+    ctx.font = '9px Courier New'; ctx.fillStyle = det.color;
+    ctx.fillText(det.label, beamX+5, 16);
     ctx.restore();
   }
 }
 
-// ── Restoration animation state ────────────────────────────────────────────────
-let restoredProgress = 0; // 0→1 over restoration phase
-
+// ── Restoration ────────────────────────────────────────────────────────────────
 function drawRestoration(progress) {
   const { x0, x1 } = dropoutPixels();
-  const xEnd = Math.floor(x0 + (x1 - x0) * progress);
+  const xEnd = Math.floor(x0 + (x1-x0) * progress);
   if (xEnd <= x0) return;
-
-  // Fill background of restored region
   ctx.save();
-  ctx.globalAlpha = 0.15;
-  ctx.fillStyle = '#00aaff';
-  ctx.fillRect(x0, 0, xEnd - x0, H);
-  ctx.restore();
-
-  // Draw restored waveform segment
+  ctx.globalAlpha = 0.12; ctx.fillStyle = '#00aaff';
+  ctx.fillRect(x0, 0, xEnd-x0, H); ctx.restore();
   drawWaveSegment(waveRestored, x0, xEnd, '#00ccff', 0.95, 0.95);
-
-  // Draw leading edge glow
   ctx.save();
-  const grad = ctx.createLinearGradient(xEnd - 12, 0, xEnd + 2, 0);
-  grad.addColorStop(0, '#00ccff00');
-  grad.addColorStop(1, '#00ccffaa');
-  ctx.fillStyle = grad;
-  ctx.fillRect(xEnd - 12, 0, 14, H);
-  ctx.restore();
+  const grad = ctx.createLinearGradient(xEnd-12, 0, xEnd+2, 0);
+  grad.addColorStop(0, '#00ccff00'); grad.addColorStop(1, '#00ccffaa');
+  ctx.fillStyle = grad; ctx.fillRect(xEnd-12, 0, 14, H); ctx.restore();
 }
 
-// ── Stage management ───────────────────────────────────────────────────────────
+// ── Stages ────────────────────────────────────────────────────────────────────
 const STAGES = [
-  { id:'intro',   dur:2200,  label:'INCOMING SIGNAL',                  dot:0 },
-  { id:'clean',   dur:5500,  label:'SIGNAL INTACT — AGENT CORRECT',    dot:1 },
-  { id:'dropout', dur:4500,  label:'PACKET LOSS — AGENT ERROR',         dot:2 },
-  { id:'detect',  dur:5000,  label:'BLIND DETECTION IN PROGRESS',       dot:3 },
-  { id:'restore', dur:4500,  label:'ACOUSTIC INPAINTING',               dot:4 },
-  { id:'result',  dur:5000,  label:'SIGNAL RESTORED — AGENT CORRECT',   dot:4 },
+  { id:'intro',   dur:2200, label:'INCOMING SIGNAL',                dot:0 },
+  { id:'clean',   dur:5500, label:'SIGNAL INTACT — AGENT CORRECT',  dot:1 },
+  { id:'dropout', dur:4500, label:'PACKET LOSS — AGENT ERROR',      dot:2 },
+  { id:'detect',  dur:5000, label:'BLIND DETECTION IN PROGRESS',    dot:3 },
+  { id:'restore', dur:4500, label:'ACOUSTIC INPAINTING',            dot:4 },
+  { id:'result',  dur:5500, label:'SIGNAL RESTORED — AGENT CORRECT',dot:4 },
 ];
-const TOTAL_DUR = STAGES.reduce((a, s) => a + s.dur, 0);
+const TOTAL_DUR = STAGES.reduce((a,s) => a + s.dur, 0);
 
-let stageIdx  = 0;
-let stageT    = 0;   // ms elapsed in current stage
-let cycleT    = 0;   // ms elapsed in full cycle
-let lastTs    = null;
+let stageIdx = 0, stageT = 0, cycleT = 0, lastTs = null;
 
-// ── Transcript DOM ─────────────────────────────────────────────────────────────
+// ── Transcript ─────────────────────────────────────────────────────────────────
 const txEl = document.getElementById('transcript-words');
 const WORDS = WORD_REGIONS.map(r => r.w);
 const DROPOUT_WORDS = new Set(['account', 'balance']);
 
 function buildTranscript(mode) {
-  // mode: 'clean' | 'distorted' | 'restoring' | 'restored'
   txEl.innerHTML = WORDS.map(w => {
-    if (mode === 'clean' || mode === 'restored') {
-      const cls = mode === 'restored' && DROPOUT_WORDS.has(w) ? 'w restored' : 'w';
-      return `<span class="${cls}">${w} </span>`;
-    }
-    if (mode === 'distorted') {
-      return DROPOUT_WORDS.has(w)
-        ? `<span class="w gap">[DROPOUT]</span> `
-        : `<span class="w">${w} </span>`;
-    }
-    if (mode === 'restoring') {
-      return DROPOUT_WORDS.has(w)
-        ? `<span class="w restoring">${w} </span>`
-        : `<span class="w">${w} </span>`;
-    }
+    if (mode === 'clean')     return `<span class="w">${w} </span>`;
+    if (mode === 'restored')  return DROPOUT_WORDS.has(w) ? `<span class="w restored">${w} </span>` : `<span class="w">${w} </span>`;
+    if (mode === 'distorted') return DROPOUT_WORDS.has(w) ? `<span class="w gap">[DROPOUT]</span> ` : `<span class="w">${w} </span>`;
+    if (mode === 'restoring') return DROPOUT_WORDS.has(w) ? `<span class="w restoring">${w} </span>` : `<span class="w">${w} </span>`;
     return `<span class="w">${w} </span>`;
   }).join('');
 }
 
-// ── Agent panel ────────────────────────────────────────────────────────────────
+// ── Agent ──────────────────────────────────────────────────────────────────────
 const actionBox  = document.getElementById('action-box');
 const actionIcon = document.getElementById('action-icon');
 const actionText = document.getElementById('action-text');
@@ -680,12 +682,11 @@ function setAgent(state) {
     actionIcon.textContent = '◈';
     actionText.textContent = 'AWAITING SIGNAL';
     actionSub.textContent  = 'harper valley banking';
-    metricsRow.style.opacity = '0';
   } else if (state === 'correct') {
     actionBox.className = 'ok';
     actionIcon.textContent = '✓';
     actionText.textContent = 'check_balance';
-    actionSub.textContent  = 'CORRECT — 100% confidence';
+    actionSub.textContent  = 'CORRECT — keyword match';
   } else if (state === 'wrong') {
     actionBox.className = 'bad';
     actionIcon.textContent = '✗';
@@ -696,11 +697,37 @@ function setAgent(state) {
     actionIcon.textContent = '✓';
     actionText.textContent = 'check_balance';
     actionSub.textContent  = 'RESTORED — pipeline v5.0';
-    metricsRow.style.opacity = '1';
   }
 }
 
-// ── UI refs ────────────────────────────────────────────────────────────────────
+// ── Pipeline steps ─────────────────────────────────────────────────────────────
+function setPip(id, state) {
+  const el = document.getElementById('pip-' + id);
+  el.className = 'pip-step ' + state;
+}
+
+function resetPips() {
+  for (let i = 1; i <= 5; i++) setPip(i, '');
+}
+
+// ── Breadcrumb ─────────────────────────────────────────────────────────────────
+const bcEls = [null,
+  document.getElementById('bc-1'),
+  document.getElementById('bc-2'),
+  document.getElementById('bc-3'),
+  document.getElementById('bc-4'),
+  document.getElementById('bc-5'),
+];
+
+function setBreadcrumb(activeIdx) {
+  for (let i = 1; i <= 5; i++) {
+    bcEls[i].className = 'bc-step'
+      + (i === activeIdx ? ' active' : '')
+      + (i < activeIdx  ? ' done'   : '');
+  }
+}
+
+// ── Shared UI refs ─────────────────────────────────────────────────────────────
 const stageLabel   = document.getElementById('stage-label');
 const warnBanner   = document.getElementById('warning-banner');
 const okBanner     = document.getElementById('success-banner');
@@ -712,16 +739,72 @@ function setActiveDot(d) {
   stageDots.forEach((el, i) => el.classList.toggle('active', i === d));
 }
 
-// ── Main render ────────────────────────────────────────────────────────────────
+// ── Stage transitions ──────────────────────────────────────────────────────────
+function onStageEnter(idx) {
+  const st = STAGES[idx];
+  stageLabel.textContent = st.label;
+  setActiveDot(st.dot);
+  warnBanner.style.opacity = '0';
+  okBanner.style.opacity   = '0';
+  detLegend.style.opacity  = '0';
+  metricsRow.className     = 'met-row';
+  resetPips();
+
+  if (st.id === 'intro') {
+    setBreadcrumb(1);
+    txEl.innerHTML = '';
+    setAgent('idle');
+
+  } else if (st.id === 'clean') {
+    setBreadcrumb(1);
+    buildTranscript('clean');
+    setAgent('correct');
+
+  } else if (st.id === 'dropout') {
+    setBreadcrumb(2);
+    buildTranscript('distorted');
+    setAgent('wrong');
+    warnBanner.style.opacity = '1';
+    setPip(1, 'done');
+
+  } else if (st.id === 'detect') {
+    setBreadcrumb(3);
+    buildTranscript('distorted');
+    setAgent('wrong');
+    warnBanner.style.opacity = '1';
+    detLegend.style.opacity  = '1';
+    scannerState = { beamX: 0, detectorIdx: 0, markers: [] };
+    setPip(1, 'done');
+    setPip(2, 'active');
+
+  } else if (st.id === 'restore') {
+    setBreadcrumb(4);
+    buildTranscript('restoring');
+    setAgent('wrong');
+    scannerState = null;
+    setPip(1, 'done');
+    setPip(2, 'done');
+    setPip(3, 'active');
+    setPip(4, 'active');
+
+  } else if (st.id === 'result') {
+    setBreadcrumb(5);
+    buildTranscript('restored');
+    setAgent('result');
+    okBanner.style.opacity   = '1';
+    metricsRow.className     = 'met-row lit';
+    for (let i = 1; i <= 5; i++) setPip(i, 'done');
+  }
+}
+
+// ── Render loop ────────────────────────────────────────────────────────────────
 function render(ts) {
   if (lastTs === null) lastTs = ts;
   const dt = ts - lastTs;
   lastTs = ts;
+  stageT += dt;
+  cycleT += dt;
 
-  stageT   += dt;
-  cycleT   += dt;
-
-  // Advance stage
   if (stageT >= STAGES[stageIdx].dur) {
     stageT  -= STAGES[stageIdx].dur;
     stageIdx = (stageIdx + 1) % STAGES.length;
@@ -729,126 +812,75 @@ function render(ts) {
     onStageEnter(stageIdx);
   }
 
-  // Progress bar
   progressFill.style.width = Math.min(100, (cycleT / TOTAL_DUR) * 100) + '%';
 
-  // ── Draw frame ───────────────────────────────────────────────────────────────
   ctx.clearRect(0, 0, W, H);
   drawGrid();
 
   const st = STAGES[stageIdx].id;
-  const p  = stageT / STAGES[stageIdx].dur; // 0→1 progress in stage
+  const p  = stageT / STAGES[stageIdx].dur;
 
   if (st === 'intro') {
-    // Draw clean waveform fading in
-    const xEnd = Math.floor(p * W);
-    drawWaveSegment(waveClean, 0, xEnd, '#22aa66', 0.7 + p * 0.3);
+    drawWaveSegment(waveClean, 0, Math.floor(p * W), '#22aa66', 0.7 + p * 0.3);
 
   } else if (st === 'clean') {
-    drawWaveSegment(waveClean, 0, W - 1, '#00ff88', 1.0);
+    drawWaveSegment(waveClean, 0, W-1, '#00ff88', 1.0);
 
   } else if (st === 'dropout') {
     const { x0, x1 } = dropoutPixels();
-    drawWaveSegment(waveClean, 0, x0 - 1, '#00ff88', 1.0);
-    drawWaveSegment(waveClean, x1 + 1, W - 1, '#00ff88', 1.0);
+    drawWaveSegment(waveClean, 0, x0-1, '#00ff88', 1.0);
+    drawWaveSegment(waveClean, x1+1, W-1, '#00ff88', 1.0);
     drawDropoutZone(Math.min(1, p * 3));
 
   } else if (st === 'detect') {
     const { x0, x1 } = dropoutPixels();
-    drawWaveSegment(waveClean, 0, x0 - 1, '#00ff8890', 0.7);
-    drawWaveSegment(waveClean, x1 + 1, W - 1, '#00ff8890', 0.7);
+    drawWaveSegment(waveClean, 0, x0-1, '#00ff8890', 0.7);
+    drawWaveSegment(waveClean, x1+1, W-1, '#00ff8890', 0.7);
     drawDropoutZone(1.0);
     drawScanners();
+    // Advance scanner beam
+    const perDet  = STAGES[stageIdx].dur / (DETECTORS.length + 0.5);
+    const detIdx  = Math.floor(stageT / perDet);
+    const localT  = (stageT % perDet) / perDet;
+    scannerState.detectorIdx = Math.min(detIdx, DETECTORS.length);
+    if (detIdx < DETECTORS.length) {
+      scannerState.beamX = Math.floor(localT * W);
+      const { x0: dx0, x1: dx1 } = dropoutPixels();
+      if (scannerState.beamX > dx1) {
+        const det = DETECTORS[detIdx];
+        if (!scannerState.markers.some(m => m.id === det.id)) {
+          scannerState.markers.push({ id: det.id, color: det.color, x0: dx0, x1: dx1 });
+        }
+      }
+    }
+    // Light up pip-2 sub-label with active detector name
+    if (detIdx < DETECTORS.length) {
+      const d = document.getElementById('pip-2');
+      d.querySelector('.pip-sub').textContent = 'scanning: ' + DETECTORS[detIdx].label;
+    }
 
   } else if (st === 'restore') {
     const { x0, x1 } = dropoutPixels();
-    drawWaveSegment(waveClean, 0, x0 - 1, '#00ff88', 1.0);
-    drawWaveSegment(waveClean, x1 + 1, W - 1, '#00ff88', 1.0);
-    // Remaining gap (not yet restored)
-    const xFill = Math.floor(x0 + (x1 - x0) * p);
+    drawWaveSegment(waveClean, 0, x0-1, '#00ff88', 1.0);
+    drawWaveSegment(waveClean, x1+1, W-1, '#00ff88', 1.0);
+    const xFill = Math.floor(x0 + (x1-x0) * p);
     if (xFill < x1) {
-      ctx.save();
-      ctx.fillStyle = '#ff000008';
-      ctx.fillRect(xFill, 0, x1 - xFill, H);
-      ctx.strokeStyle = '#ff444330';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(xFill, H / 2);
-      ctx.lineTo(x1, H / 2);
-      ctx.stroke();
+      ctx.save(); ctx.fillStyle = '#ff000008';
+      ctx.fillRect(xFill, 0, x1-xFill, H);
+      ctx.strokeStyle = '#ff444330'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(xFill, H/2); ctx.lineTo(x1, H/2); ctx.stroke();
       ctx.restore();
     }
     drawRestoration(p);
 
   } else if (st === 'result') {
-    drawWaveSegment(waveClean, 0, dropoutPixels().x0 - 1, '#00ff88', 1.0);
-    drawWaveSegment(waveRestored, dropoutPixels().x0, dropoutPixels().x1, '#00ccff', 1.0);
-    drawWaveSegment(waveClean, dropoutPixels().x1 + 1, W - 1, '#00ff88', 1.0);
-  }
-
-  // Update scanner beam position
-  if (st === 'detect' && scannerState) {
-    const scanDur  = STAGES[stageIdx].dur;
-    const perDet   = scanDur / (DETECTORS.length + 0.5);
-    const detIdx   = Math.floor(stageT / perDet);
-    const localT   = (stageT % perDet) / perDet;
-
-    scannerState.detectorIdx = Math.min(detIdx, DETECTORS.length);
-    if (detIdx < DETECTORS.length) {
-      scannerState.beamX = Math.floor(localT * W);
-      // Record marker when beam crosses dropout zone
-      const { x0, x1 } = dropoutPixels();
-      const bx = scannerState.beamX;
-      if (bx > x1) {
-        const det  = DETECTORS[detIdx];
-        const already = scannerState.markers.some(m => m.id === det.id);
-        if (!already) {
-          scannerState.markers.push({ id: det.id, color: det.color, x0, x1 });
-        }
-      }
-    }
+    const { x0, x1 } = dropoutPixels();
+    drawWaveSegment(waveClean,    0,    x0-1, '#00ff88', 1.0);
+    drawWaveSegment(waveRestored, x0,   x1,   '#00ccff', 1.0);
+    drawWaveSegment(waveClean,    x1+1, W-1,  '#00ff88', 1.0);
   }
 
   requestAnimationFrame(render);
-}
-
-// ── Stage transitions ──────────────────────────────────────────────────────────
-function onStageEnter(idx) {
-  const st = STAGES[idx];
-  stageLabel.textContent = st.label;
-  setActiveDot(st.dot);
-
-  warnBanner.style.opacity = '0';
-  okBanner.style.opacity   = '0';
-  detLegend.style.opacity  = '0';
-  restoredProgress = 0;
-
-  if (st.id === 'intro') {
-    txEl.innerHTML = '';
-    setAgent('idle');
-  } else if (st.id === 'clean') {
-    buildTranscript('clean');
-    setAgent('correct');
-  } else if (st.id === 'dropout') {
-    buildTranscript('distorted');
-    setAgent('wrong');
-    warnBanner.style.opacity = '1';
-  } else if (st.id === 'detect') {
-    buildTranscript('distorted');
-    setAgent('wrong');
-    warnBanner.style.opacity = '1';
-    detLegend.style.opacity  = '1';
-    scannerState = { beamX: 0, detectorIdx: 0, markers: [] };
-  } else if (st.id === 'restore') {
-    buildTranscript('restoring');
-    setAgent('wrong');
-    warnBanner.style.opacity = '0';
-    scannerState = null;
-  } else if (st.id === 'result') {
-    buildTranscript('restored');
-    setAgent('result');
-    okBanner.style.opacity = '1';
-  }
 }
 
 // ── Boot ───────────────────────────────────────────────────────────────────────
@@ -856,11 +888,7 @@ onStageEnter(0);
 requestAnimationFrame(render);
 
 document.getElementById('replay-btn').addEventListener('click', () => {
-  stageIdx = 0;
-  stageT   = 0;
-  cycleT   = 0;
-  lastTs   = null;
-  scannerState = null;
+  stageIdx = 0; stageT = 0; cycleT = 0; lastTs = null; scannerState = null;
   onStageEnter(0);
 });
 </script>
