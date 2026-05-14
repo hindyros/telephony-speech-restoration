@@ -79,15 +79,15 @@ Nine `events_source` modes are swept: `gt`, `rms`, `mfcc`, `wavlm`, `silero`, `b
 ```
 telephony-speech-restoration/
 ├── notebooks/
-│   ├── AudioInpainting_v5_0.ipynb   ← canonical notebook (run in Colab)
-│   ├── AudioInpainting_v4_0.ipynb   ← reference
-│   └── AudioInpainting_v3_0.ipynb   ← reference
+│   └── AudioInpainting_v5_0.ipynb   ← canonical notebook (run in Colab)
 ├── data/
-│   ├── clean/                       ← 16 kHz mono caller WAVs (not committed)
-│   ├── distorted/                   ← telephony-degraded counterparts (40 files)
+│   ├── clean/                       ← 16 kHz mono caller WAVs + manifest (40 files)
+│   ├── distorted/                   ← telephony-degraded counterparts + manifest (40 files)
 │   ├── events/                      ← ground-truth cut JSON files (40 files)
-│   └── raw/harper-valley/           ← Harper Valley clone (not committed)
+│   ├── raw/harper-valley/           ← Harper Valley clone (not committed)
+│   └── auto_*/no_detector_*/benchmark_*  ← per-run detection metrics & configs (from Colab)
 ├── evals/
+│   ├── run_all_evals.py             ← batch scorer: all conditions → Excel workbook
 │   ├── eval_runner.py               ← CAR + WER scoring (clean/distorted/restored)
 │   ├── compare_runs.py              ← cross-run benchmark table
 │   └── eval_cuts_detector.py        ← standalone detection benchmark (125 clips)
@@ -95,11 +95,16 @@ telephony-speech-restoration/
 │   ├── prepare_harper_valley.py     ← build data/clean/ from Harper Valley
 │   ├── generate_distorted_audio.py  ← build data/distorted/ from data/clean/
 │   ├── detect_cuts.py               ← CLI silence + spectral-flux detector
+│   ├── strip_silence.py             ← VAD-based silence stripper utility
 │   └── stackai_client.py            ← StackAI REST client helper
 ├── docs/
 │   ├── pipeline_overview.tex        ← LaTeX write-up
 │   └── pipeline_overview.pdf        ← compiled PDF
-├── results/                         ← eval CSVs and summary JSONs (gitignored)
+├── demo/
+│   └── oscilloscope.html            ← interactive waveform visualiser
+├── results/
+│   └── all_results_*.xlsx           ← consolidated eval workbook (committed)
+│   (raw CSVs and per-run summary JSONs are gitignored)
 └── sandbox/
     └── actions.md                   ← 8 banking action definitions
 ```
@@ -128,8 +133,12 @@ python scripts/generate_distorted_audio.py
 
 # Run the restoration notebook in Google Colab (T4 GPU)
 # Upload data/distorted/ + data/events/ to Drive → run AudioInpainting_v5_0.ipynb
+# Download the restored_* directories back to data/
 
-# Score one pipeline version
+# Score all pipeline versions at once (writes results/all_results_*.xlsx)
+python evals/run_all_evals.py
+
+# Score one specific pipeline version
 python evals/eval_runner.py \
     --conditions clean distorted restored \
     --restored-dir data/restored_wavlm_silero/ \
